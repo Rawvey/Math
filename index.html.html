@@ -1,0 +1,2247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+<meta name="theme-color" content="#4A3AA8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Maths">
+<meta name="format-detection" content="telephone=no">
+<title>Le chemin vers les dérivées</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Newsreader:opsz,wght@6..72,400;6..72,600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FCFBF8;
+  --grid:#E1E9F3;
+  --grid-strong:#CFDCEC;
+  --ink:#1B2440;
+  --soft:#5C6784;
+  --violet:#4A3AA8;
+  --violet-2:#7B6BE8;
+  --yellow:#FFE27A;
+  --green:#0E7A56;
+  --red:#C23B3B;
+  --display:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Newsreader",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overflow-x:hidden}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  background:var(--paper);
+  background-image:
+    repeating-linear-gradient(to right, var(--grid) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px 28px);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:17px;
+  line-height:1.62;
+  overscroll-behavior-y:none;
+}
+.wrap{
+  max-width:720px;margin:0 auto;
+  padding-left:max(18px, env(safe-area-inset-left));
+  padding-right:max(18px, env(safe-area-inset-right));
+  padding-bottom:calc(90px + env(safe-area-inset-bottom));
+}
+
+/* ---------- barre du haut ---------- */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:var(--violet);
+  color:#fff;
+  padding:10px 18px;
+  padding-top:calc(10px + env(safe-area-inset-top));
+  padding-left:max(18px, env(safe-area-inset-left));
+  padding-right:max(18px, env(safe-area-inset-right));
+}
+.topbar-in{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.brand{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:-.01em}
+.bar{flex:1;height:6px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--yellow);width:0;transition:width .45s ease}
+.bar-num{font-family:var(--mono);font-size:12px;opacity:.9}
+
+/* ---------- hero ---------- */
+.hero{padding:44px 0 30px}
+.eyebrow{
+  font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--violet);margin:0 0 14px
+}
+h1{
+  font-family:var(--display);font-weight:800;
+  font-size:clamp(34px,9vw,54px);line-height:1.02;
+  letter-spacing:-.03em;margin:0 0 18px
+}
+.hl{
+  background:linear-gradient(to top,var(--yellow) 0 .42em,transparent .42em);
+  padding:0 .08em;
+}
+.lede{font-size:19px;color:var(--soft);margin:0 0 26px;max-width:34em}
+.demo{
+  border:1.5px solid var(--ink);border-radius:3px;background:#fff;
+  padding:14px 14px 10px;margin:0 0 22px;
+  box-shadow:5px 5px 0 rgba(74,58,168,.13);
+}
+.demo canvas{width:100%;display:block;touch-action:pan-y}
+.demo-row{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.demo-lab{font-family:var(--mono);font-size:13px;color:var(--soft);flex:1 1 100%}
+.demo-lab b{color:var(--violet);font-size:15px}
+
+/* ---------- boutons ---------- */
+button{font:inherit;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.btn{
+  font-family:var(--display);font-weight:700;font-size:16px;
+  background:var(--ink);color:#fff;border:none;border-radius:3px;
+  padding:14px 22px;min-height:48px;box-shadow:4px 4px 0 var(--violet-2);
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--violet-2)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink);box-shadow:none}
+.btn.ghost:active{transform:none;background:rgba(74,58,168,.08)}
+.btn.small{padding:11px 16px;font-size:15px;min-height:46px;box-shadow:3px 3px 0 var(--violet-2)}
+:focus-visible{outline:3px solid var(--violet-2);outline-offset:2px}
+@media (hover:hover){
+  .btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--violet-2)}
+  .btn.ghost:hover{transform:none;background:#fff}
+}
+
+/* curseurs : assez gros pour le doigt */
+input[type=range]{
+  flex:1;min-width:130px;height:44px;
+  accent-color:var(--violet);
+  touch-action:pan-y;background:transparent;
+  -webkit-appearance:none;appearance:none;
+}
+input[type=range]::-webkit-slider-runnable-track{
+  height:6px;border-radius:99px;background:var(--grid-strong);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--violet);border:3px solid #fff;
+  box-shadow:0 1px 4px rgba(27,36,64,.35);
+  margin-top:-12px;
+}
+
+/* ---------- le parcours ---------- */
+.sec-title{
+  font-family:var(--display);font-weight:700;font-size:13px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--soft);
+  margin:38px 0 4px;
+}
+.spine{position:relative;margin:22px 0 0;padding-left:0}
+.spine::before{
+  content:"";position:absolute;left:19px;top:14px;bottom:22px;
+  width:2px;background:var(--grid-strong);
+}
+.step{
+  position:relative;display:flex;gap:16px;align-items:flex-start;
+  width:100%;text-align:left;background:none;border:none;
+  padding:11px 4px;margin:0 0 2px;border-radius:4px;color:inherit;
+  min-height:56px;
+}
+.step:active{background:rgba(123,107,232,.14)}
+.dot{
+  position:relative;z-index:2;flex:none;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--grid-strong);
+  display:grid;place-items:center;
+  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--soft);
+}
+.step.done .dot{background:var(--violet);border-color:var(--violet);color:#fff}
+.step.current .dot{border-color:var(--ink);color:var(--ink);box-shadow:0 0 0 4px rgba(255,226,122,.7)}
+.step-t{font-family:var(--display);font-weight:700;font-size:17px;line-height:1.25;padding-top:8px}
+.step.done .step-t{color:var(--soft)}
+.chap{
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--violet);margin:26px 0 8px;padding-left:56px;
+}
+.chap:first-of-type{margin-top:8px}
+
+/* ---------- leçon ---------- */
+.lesson-head{padding:30px 0 6px}
+.crumb{font-family:var(--mono);font-size:12px;color:var(--soft);letter-spacing:.08em}
+h2{font-family:var(--display);font-weight:800;font-size:clamp(27px,7vw,38px);line-height:1.08;letter-spacing:-.02em;margin:8px 0 22px}
+h3{
+  font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--violet);margin:34px 0 10px
+}
+.lesson p{margin:0 0 15px}
+.lesson ul{margin:0 0 15px;padding-left:20px}
+.lesson li{margin-bottom:7px}
+code,.m{font-family:var(--mono);font-size:.93em;background:rgba(74,58,168,.08);padding:1px 5px;border-radius:3px;white-space:nowrap}
+.box{
+  border-left:4px solid var(--yellow);background:#fff;
+  border-top:1px solid var(--grid-strong);border-right:1px solid var(--grid-strong);
+  border-bottom:1px solid var(--grid-strong);
+  padding:16px 18px;margin:0 0 18px;
+}
+.box p:last-child{margin-bottom:0}
+p.note{font-size:15.5px;color:var(--soft);border-left:3px solid var(--grid-strong);padding-left:14px}
+p.note b{color:var(--ink)}
+.calc{font-family:var(--mono);font-size:15px;line-height:2;color:var(--ink)}
+.calc b{color:var(--violet)}
+details.rev{border:1.5px dashed var(--violet-2);border-radius:3px;background:#fff;padding:0 16px;margin:0 0 18px}
+details.rev summary{
+  font-family:var(--display);font-weight:700;font-size:15px;color:var(--violet);
+  cursor:pointer;padding:13px 0;list-style:none;
+}
+details.rev summary::-webkit-details-marker{display:none}
+details.rev summary::before{content:"▸ ";display:inline-block;transition:transform .15s ease}
+details.rev[open] summary::before{content:"▾ "}
+details.rev[open]{border-style:solid}
+details.rev > *:last-child{margin-bottom:15px}
+.scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 0 18px;
+  overscroll-behavior-x:contain;scrollbar-width:thin}
+.scrollx table.t{margin:0;min-width:500px;font-size:13px}
+.scrollx.auto table.t{min-width:0}
+@media (max-width:520px){
+  .scrollx.auto table.t{min-width:440px;font-size:13px}
+}
+table.t{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:14px;margin:0 0 18px;background:#fff}
+table.t th,table.t td{border:1px solid var(--grid-strong);padding:7px 9px;text-align:center}
+table.t th{background:rgba(74,58,168,.07);font-weight:700}
+
+/* ---------- exercices ---------- */
+.ex{
+  background:#fff;border:1.5px solid var(--ink);border-radius:3px;
+  padding:16px 17px;margin:0 0 14px;box-shadow:4px 4px 0 rgba(27,36,64,.08);
+}
+.ex-q{font-weight:600;margin:0 0 13px}
+.choices{display:grid;gap:8px}
+.choice{
+  text-align:left;background:var(--paper);border:1.5px solid var(--grid-strong);
+  border-radius:3px;padding:14px 14px;min-height:52px;
+  font-family:var(--mono);font-size:16px;color:var(--ink);
+}
+.choice:active{border-color:var(--violet-2);background:rgba(123,107,232,.08)}
+@media (hover:hover){ .choice:hover{border-color:var(--violet-2)} }
+.choice.ok{border-color:var(--green);background:rgba(14,122,86,.09);font-weight:700}
+.choice.no{border-color:var(--red);background:rgba(194,59,59,.08);text-decoration:line-through}
+.choice[disabled]{cursor:default}
+.numrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.numrow input{
+  font-family:var(--mono);font-size:17px;flex:1 1 130px;min-width:110px;max-width:180px;
+  padding:13px 12px;min-height:50px;
+  border:1.5px solid var(--grid-strong);border-radius:3px;background:var(--paper);color:var(--ink);
+  -webkit-appearance:none;appearance:none;
+}
+.numrow input:focus{border-color:var(--violet);outline:none}
+.verdict{margin-top:12px;font-size:15px;display:none}
+.verdict.show{display:block}
+.verdict .tag{font-family:var(--display);font-weight:700;display:block;margin-bottom:3px}
+.verdict.good .tag{color:var(--green)}
+.verdict.bad .tag{color:var(--red)}
+.hintbtn{background:none;border:none;color:var(--violet);font-size:14px;text-decoration:underline;padding:6px 0}
+
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin:34px 0 0;padding-top:22px;border-top:2px solid var(--grid-strong)}
+.nav .btn{flex:1 1 auto}
+@media (max-width:520px){
+  .nav{flex-direction:column-reverse}
+  .nav .btn{width:100%}
+}
+.footer{margin-top:40px;font-size:13px;color:var(--soft);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.footer button{background:none;border:none;color:var(--soft);text-decoration:underline;font-size:13px;padding:0}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- ajustements iPhone ---------- */
+@media (max-width:520px){
+  body{font-size:16.5px;line-height:1.58}
+  .wrap{padding-left:max(15px, env(safe-area-inset-left));padding-right:max(15px, env(safe-area-inset-right))}
+  .hero{padding:30px 0 22px}
+  .lede{font-size:17.5px}
+  h2{margin-bottom:18px}
+  .calc{font-size:14px;line-height:1.95;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  code,.m{font-size:.9em}
+  .box{padding:14px 15px}
+  .ex{padding:15px 14px}
+  .demo{padding:11px 11px 8px}
+  .chap{padding-left:0;margin-top:24px}
+  .spine::before{left:19px}
+  .brand{font-size:14px}
+  .step-t{font-size:16px}
+  details.rev summary{font-size:14.5px}
+  .footer{font-size:12.5px}
+}
+@media (max-width:380px){
+  .dot{width:36px;height:36px;font-size:12px}
+  .spine::before{left:17px}
+  .step{gap:12px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">Vers les dérivées</div>
+    <div class="bar"><span id="barfill"></span></div>
+    <div class="bar-num" id="barnum">0/28</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ ACCUEIL ============ -->
+  <div id="home">
+    <div class="hero">
+      <p class="eyebrow">28 étapes · un cours complet</p>
+      <h1>Voici ce que tu sauras faire <span class="hl">à la fin</span>.</h1>
+      <p class="lede">Cette courbe, c'est <code>f(x) = x²</code>. Bouge le curseur : la droite violette se penche pour épouser la courbe à l'endroit où tu es. Sa pente, c'est la dérivée. Tout le parcours sert à comprendre cette phrase.</p>
+
+      <div class="demo">
+        <canvas id="heroCv" width="640" height="360" aria-label="Courbe avec sa tangente"></canvas>
+        <div class="demo-row">
+          <div class="demo-lab">position <b id="heroX">1,0</b> &nbsp;·&nbsp; pente de la droite <b id="heroP">2,0</b></div>
+          <input type="range" id="heroS" min="-180" max="180" value="100" aria-label="Déplacer le point sur la courbe">
+        </div>
+      </div>
+
+      <button class="btn" id="startBtn">Commencer par l'étape 1</button>
+    </div>
+
+    <p class="sec-title">Le parcours</p>
+    <div class="spine" id="spine"></div>
+
+    <div class="footer">
+      <span>Ta progression est gardée. Tu peux fermer et revenir.</span>
+      <button id="resetBtn">Tout remettre à zéro</button>
+    </div>
+  </div>
+
+  <!-- ============ LEÇON ============ -->
+  <div id="view" class="hidden"></div>
+
+</div>
+
+<script>
+/* ==================================================================
+   1. CONTENU DU COURS
+   ================================================================== */
+const CHAPS = {
+  1:"Les outils de base",
+  5:"Le langage des lettres",
+  8:"Les fonctions",
+  11:"L'idée de dérivée",
+  16:"Angles et trigonométrie",
+  20:"Puissances et logarithmes",
+  23:"Dériver toutes les fonctions"
+};
+
+const L = [
+{
+  t:"L'ordre des opérations",
+  html:`
+  <h3>L'idée</h3>
+  <p>On ne calcule pas toujours de gauche à droite. Les multiplications et les divisions passent <span class="hl">avant</span> les additions et les soustractions.</p>
+  <p>Ce n'est pas une lubie : c'est ce qui colle à la réalité.</p>
+  <h3>Un exemple</h3>
+  <div class="box">
+  <p>Tu prends 1 café à 2 € et 3 croissants à 4 € pièce. Combien ça fait ?</p>
+  <p class="calc">2 + 3 × 4</p>
+  <p>Si tu calculais de gauche à droite : 2 + 3 = 5, puis 5 × 4 = 20 €. Faux — tu aurais multiplié le café par 4.</p>
+  <p class="calc">3 × 4 = 12 (les croissants)<br>2 + 12 = <b>14 €</b></p>
+  </div>
+  <p>Les parenthèses, elles, sont prioritaires sur tout. <code>(2 + 3) × 4 = 20</code> : elles forcent l'addition d'abord.</p>
+  <h3>À retenir</h3>
+  <ul>
+    <li>1. les parenthèses</li>
+    <li>2. les puissances (on verra à l'étape 4)</li>
+    <li>3. les × et les ÷</li>
+    <li>4. les + et les −</li>
+  </ul>`,
+  ex:[
+    {q:"Combien fait <code>5 + 2 × 3</code> ?", type:"num", a:11,
+     why:"2 × 3 = 6 d'abord, puis 5 + 6 = 11."},
+    {q:"Combien fait <code>(5 + 2) × 3</code> ?", type:"num", a:21,
+     why:"Les parenthèses d'abord : 5 + 2 = 7, puis 7 × 3 = 21."},
+    {q:"Combien fait <code>10 − 4 ÷ 2</code> ?", type:"num", a:8,
+     why:"La division d'abord : 4 ÷ 2 = 2, puis 10 − 2 = 8."}
+  ]
+},
+{
+  t:"Les fractions",
+  html:`
+  <h3>L'idée</h3>
+  <p>Une fraction, c'est un partage. <code>3/4</code> se lit « trois parts sur quatre » : on a coupé en 4, on en prend 3.</p>
+  <p>Le nombre du bas dit <span class="hl">en combien on coupe</span>. Le nombre du haut dit <span class="hl">combien on en prend</span>.</p>
+  <h3>Additionner</h3>
+  <div class="box">
+  <p>Une pizza coupée en 4. Tu manges 1 part, puis 2 parts.</p>
+  <p class="calc">1/4 + 2/4 = <b>3/4</b></p>
+  <p>Le bas ne bouge pas : les parts ont toujours la même taille. On additionne seulement le haut.</p>
+  <p>Mais <code>1/2 + 1/4</code> ? Les parts n'ont pas la même taille. On réécrit la moitié en quarts : <code>1/2 = 2/4</code>. Donc <code>2/4 + 1/4 = 3/4</code>.</p>
+  </div>
+  <h3>Multiplier</h3>
+  <p>C'est le cas facile : haut × haut, bas × bas.</p>
+  <p class="calc">2/3 × 4/5 = (2×4)/(3×5) = <b>8/15</b></p>
+  <h3>Simplifier</h3>
+  <p>Diviser le haut et le bas par le même nombre ne change rien à la valeur. <code>6/8</code>, en divisant tout par 2, devient <code>3/4</code>. C'est la même quantité de pizza.</p>`,
+  ex:[
+    {q:"Combien fait <code>1/5 + 3/5</code> ?", type:"qcm",
+     c:["4/10","4/5","3/25"], a:1,
+     why:"Les parts ont la même taille : on additionne les hauts, le bas ne bouge pas. 1 + 3 = 4, donc 4/5."},
+    {q:"Combien fait <code>1/2 + 1/6</code> ?", type:"qcm",
+     c:["2/8","1/3","4/6"], a:2,
+     why:"On réécrit 1/2 en sixièmes : 1/2 = 3/6. Puis 3/6 + 1/6 = 4/6."},
+    {q:"<code>10/15</code> simplifié, ça donne :", type:"qcm",
+     c:["2/3","5/10","1/5"], a:0,
+     why:"On divise le haut et le bas par 5 : 10÷5 = 2 et 15÷5 = 3."}
+  ]
+},
+{
+  t:"Les nombres négatifs",
+  html:`
+  <h3>L'idée</h3>
+  <p>Pense à un compte en banque. <code>−30</code>, c'est 30 € que tu dois. Ou à un thermomètre : <code>−5</code> degrés, c'est 5 crans sous zéro.</p>
+  <h3>Additionner et soustraire</h3>
+  <div class="box">
+  <p>Tu es à −3 sur ton compte, on te verse 5 €.</p>
+  <p class="calc">−3 + 5 = <b>2</b></p>
+  <p>Tu remontes de 5 crans : tu passes par 0 et tu continues jusqu'à 2.</p>
+  <p>Et si on te retire encore 4 € :</p>
+  <p class="calc">−3 − 4 = <b>−7</b></p>
+  </div>
+  <h3>Le signe moins devant une parenthèse</h3>
+  <p>Enlever une dette, c'est gagner de l'argent. C'est pour ça que <span class="hl">deux moins font un plus</span>.</p>
+  <p class="calc">5 − (−3) = 5 + 3 = <b>8</b></p>
+  <h3>Multiplier</h3>
+  <ul>
+    <li><code>3 × (−2) = −6</code> — un seul moins, le résultat est négatif</li>
+    <li><code>(−3) × (−2) = 6</code> — deux moins, ils s'annulent</li>
+  </ul>`,
+  ex:[
+    {q:"Combien fait <code>−8 + 3</code> ?", type:"num", a:-5,
+     why:"Tu remontes de 3 crans depuis −8 : tu arrives à −5. (Écris le moins : -5)"},
+    {q:"Combien fait <code>4 − (−6)</code> ?", type:"num", a:10,
+     why:"Deux moins qui se suivent deviennent un plus : 4 + 6 = 10."},
+    {q:"Combien fait <code>(−5) × (−4)</code> ?", type:"num", a:20,
+     why:"Deux facteurs négatifs : les signes s'annulent, le résultat est positif. 5 × 4 = 20."}
+  ]
+},
+{
+  t:"Les puissances",
+  html:`
+  <h3>L'idée</h3>
+  <p>Une puissance est une abréviation. Plutôt que d'écrire <code>x × x × x</code>, on écrit <code>x³</code>.</p>
+  <p>Le petit chiffre en haut dit <span class="hl">combien de fois on écrit le nombre</span> dans la multiplication. Rien de plus.</p>
+  <div class="box">
+  <p class="calc">2³ = 2 × 2 × 2 = <b>8</b><br>
+  5² = 5 × 5 = <b>25</b><br>
+  x² = x × x</p>
+  </div>
+  <h3>Deux cas particuliers</h3>
+  <ul>
+    <li><code>x¹ = x</code> — une seule fois, donc lui-même.</li>
+    <li><code>x⁰ = 1</code> — toujours 1, quel que soit x. C'est une convention, mais elle est cohérente avec la règle du dessous.</li>
+  </ul>
+  <h3>La règle utile</h3>
+  <p>Quand on multiplie deux puissances du même nombre, on additionne les petits chiffres.</p>
+  <p class="calc">x² × x³ = (x·x) × (x·x·x) = x⁵</p>
+  <p>Il suffit de compter les x : 2 + 3 = 5. Cette règle reviendra à la toute fin du parcours.</p>
+  <p><b>Attention à ne pas confondre :</b> <code>3x</code> veut dire 3 fois x. <code>x³</code> veut dire x multiplié par lui-même 3 fois. Si x = 4 : <code>3x = 12</code> mais <code>x³ = 64</code>.</p>`,
+  ex:[
+    {q:"Combien fait <code>3⁴</code> ?", type:"num", a:81,
+     why:"3 × 3 × 3 × 3 : 3×3 = 9, 9×3 = 27, 27×3 = 81."},
+    {q:"Combien fait <code>7⁰</code> ?", type:"num", a:1,
+     why:"Toute puissance zéro vaut 1."},
+    {q:"<code>x⁴ × x²</code> vaut :", type:"qcm",
+     c:["x⁸","x⁶","2x⁶"], a:1,
+     why:"On compte les x : 4 d'un côté, 2 de l'autre, donc 6 en tout."},
+    {q:"Si <code>x = 2</code>, combien vaut <code>x⁵</code> ?", type:"num", a:32,
+     why:"2 × 2 × 2 × 2 × 2 = 32."}
+  ]
+},
+{
+  t:"Remplacer un nombre par une lettre",
+  html:`
+  <h3>L'idée</h3>
+  <p>Une lettre est une <span class="hl">boîte</span> qui contient un nombre. Soit on ne sait pas encore lequel, soit il change selon les cas.</p>
+  <p>C'est le seul saut d'abstraction du parcours. Une fois qu'il est fait, le reste s'enchaîne.</p>
+  <h3>Un exemple</h3>
+  <div class="box">
+  <p>Une salle de sport : 5 € d'inscription, puis 2 € par séance.</p>
+  <p>Pour 3 séances : <code>2 × 3 + 5 = 11 €</code>. Pour 10 séances : <code>2 × 10 + 5 = 25 €</code>.</p>
+  <p>Plutôt que de refaire le calcul à chaque fois, on écrit une bonne fois :</p>
+  <p class="calc">prix = <b>2x + 5</b></p>
+  <p>où x est le nombre de séances. La formule remplace une infinité de calculs.</p>
+  </div>
+  <h3>Deux conventions d'écriture</h3>
+  <ul>
+    <li><code>2x</code> signifie 2 × x. Le signe × est sous-entendu devant une lettre.</li>
+    <li><code>x/3</code> signifie x divisé par 3.</li>
+  </ul>
+  <h3>Remplacer</h3>
+  <p>« Calculer pour x = 4 » veut dire : partout où tu vois x, tu écris 4.</p>
+  <p class="calc">2x + 5 &nbsp;→&nbsp; 2 × 4 + 5 = 8 + 5 = <b>13</b></p>`,
+  ex:[
+    {q:"Si <code>x = 6</code>, combien vaut <code>2x + 5</code> ?", type:"num", a:17,
+     why:"2 × 6 = 12, puis 12 + 5 = 17."},
+    {q:"Si <code>x = 3</code>, combien vaut <code>x² + 1</code> ?", type:"num", a:10,
+     why:"x² = 3 × 3 = 9, puis 9 + 1 = 10."},
+    {q:"Si <code>x = 5</code>, combien vaut <code>4x − 7</code> ?", type:"num", a:13,
+     why:"4 × 5 = 20, puis 20 − 7 = 13."},
+    {q:"Une place de cinéma coûte 9 €, plus 3 € de frais fixes par commande. Le prix pour x places s'écrit :", type:"qcm",
+     c:["9 + 3x","9x + 3","12x"], a:1,
+     why:"Les 9 € se répètent à chaque place (donc 9x), les 3 € ne sont comptés qu'une fois."}
+  ]
+},
+{
+  t:"Développer et factoriser",
+  html:`
+  <h3>Développer</h3>
+  <p>Faire sauter les parenthèses en distribuant le facteur à chaque terme.</p>
+  <p class="calc">3(x + 2) = 3×x + 3×2 = <b>3x + 6</b></p>
+  <div class="box">
+  <p>Vois ça comme un rectangle. Hauteur 3, largeur <code>x + 2</code>. Son aire, c'est <code>3(x+2)</code>. Mais tu peux aussi le couper en deux morceaux : un de largeur x (aire <code>3x</code>) et un de largeur 2 (aire <code>6</code>). Même rectangle, deux écritures.</p>
+  </div>
+  <p>Attention au signe moins : il se distribue aussi.</p>
+  <p class="calc">−2(x + 4) = <b>−2x − 8</b></p>
+  <h3>Factoriser</h3>
+  <p>C'est le chemin inverse : repérer ce qui est commun et le mettre en facteur.</p>
+  <p class="calc">6x + 9 = 3 × 2x + 3 × 3 = <b>3(2x + 3)</b></p>
+  <h3>Réduire</h3>
+  <p>On ne peut additionner que ce qui est de même nature. <code>3x + 5x = 8x</code> (3 pommes + 5 pommes). Mais <code>3x + 5</code> ne se simplifie pas : ce ne sont pas les mêmes objets.</p>`,
+  ex:[
+    {q:"<code>4(x + 3)</code> développé donne :", type:"qcm",
+     c:["4x + 3","4x + 12","4x + 7"], a:1,
+     why:"On distribue le 4 aux deux termes : 4×x = 4x et 4×3 = 12."},
+    {q:"<code>2(3x − 5)</code> développé donne :", type:"qcm",
+     c:["6x − 10","6x − 5","5x − 10"], a:0,
+     why:"2×3x = 6x et 2×(−5) = −10."},
+    {q:"<code>7x + 2x</code> réduit donne :", type:"qcm",
+     c:["9x²","9x","14x"], a:1,
+     why:"Ce sont les mêmes objets, on additionne les nombres devant : 7 + 2 = 9."},
+    {q:"<code>10x + 15</code> factorisé donne :", type:"qcm",
+     c:["5(2x + 3)","5(2x + 15)","10(x + 15)"], a:0,
+     why:"5 est commun aux deux : 10x = 5×2x et 15 = 5×3."}
+  ]
+},
+{
+  t:"Résoudre une équation",
+  html:`
+  <h3>L'idée</h3>
+  <p>Une équation, c'est une <span class="hl">balance à deux plateaux</span>. Le signe = dit que les deux côtés pèsent pareil.</p>
+  <p>Résoudre, c'est isoler x d'un côté. La seule règle : ce que tu fais à un plateau, tu le fais à l'autre. Sinon la balance penche.</p>
+  <h3>Un exemple</h3>
+  <div class="box">
+  <p class="calc">2x + 5 = 17</p>
+  <p>J'enlève 5 des deux côtés :</p>
+  <p class="calc">2x + 5 − 5 = 17 − 5<br>2x = 12</p>
+  <p>Je divise par 2 des deux côtés :</p>
+  <p class="calc">2x ÷ 2 = 12 ÷ 2<br>x = <b>6</b></p>
+  </div>
+  <h3>Vérifier</h3>
+  <p>Tu peux toujours contrôler tout seul : remplace x par ta réponse dans l'équation de départ. <code>2 × 6 + 5 = 17</code>. C'est juste.</p>
+  <p>C'est le grand avantage des équations : tu n'as jamais besoin de la correction pour savoir si tu as bon.</p>`,
+  ex:[
+    {q:"Résous <code>x + 7 = 12</code>. x = ?", type:"num", a:5,
+     why:"J'enlève 7 des deux côtés : x = 12 − 7 = 5."},
+    {q:"Résous <code>3x = 21</code>. x = ?", type:"num", a:7,
+     why:"Je divise les deux côtés par 3 : x = 21 ÷ 3 = 7."},
+    {q:"Résous <code>2x − 4 = 10</code>. x = ?", type:"num", a:7,
+     why:"J'ajoute 4 des deux côtés : 2x = 14. Puis je divise par 2 : x = 7."},
+    {q:"Résous <code>5x + 3 = 28</code>. x = ?", type:"num", a:5,
+     why:"J'enlève 3 : 5x = 25. Je divise par 5 : x = 5."}
+  ]
+},
+{
+  t:"Lire un graphique",
+  html:`
+  <h3>L'idée</h3>
+  <p>Deux règles graduées posées à angle droit. L'horizontale s'appelle l'axe des <span class="hl">x</span>, la verticale l'axe des <span class="hl">y</span>.</p>
+  <p>Un point se repère par deux nombres, toujours dans cet ordre : <span class="hl">d'abord combien on avance, ensuite combien on monte</span>.</p>
+  <div class="box">
+  <p>Le point <code>(3 ; 2)</code> : j'avance de 3 vers la droite, je monte de 2.</p>
+  <p>Le point <code>(2 ; 3)</code> est ailleurs. L'ordre compte.</p>
+  </div>
+  <h3>Regarde</h3>
+  <p>Déplace le curseur : le point se promène et ses deux coordonnées s'affichent.</p>
+  <div class="widget" data-w="point"></div>
+  <h3>À quoi ça sert ici</h3>
+  <p>Toute la suite du parcours est visuelle. Une formule et un dessin sont deux façons de dire la même chose — le dessin est souvent plus parlant.</p>`,
+  ex:[
+    {q:"Le point <code>(5 ; 0)</code> se trouve :", type:"qcm",
+     c:["sur l'axe horizontal","sur l'axe vertical","hors du repère"], a:0,
+     why:"Il monte de 0 : il reste collé à l'axe horizontal, à 5 crans vers la droite."},
+    {q:"Pour le point <code>(4 ; 7)</code>, quelle est la valeur de x ?", type:"num", a:4,
+     why:"x est toujours le premier nombre, celui de l'avancée horizontale."},
+    {q:"Le point <code>(−2 ; 3)</code> se trouve :", type:"qcm",
+     c:["à droite et en haut","à gauche et en haut","à gauche et en bas"], a:1,
+     why:"x négatif = vers la gauche. y positif = vers le haut."}
+  ]
+},
+{
+  t:"Une fonction, c'est une machine",
+  html:`
+  <h3>L'idée</h3>
+  <p>Une fonction est une machine : tu mets un nombre dedans, elle en ressort un autre. Toujours le même résultat pour la même entrée.</p>
+  <p>L'écriture <code>f(x) = 2x + 1</code> décrit ce que la machine fait : elle double et ajoute 1.</p>
+  <div class="box">
+  <p><code>f(3)</code> ne veut pas dire « f multiplié par 3 ». Ça veut dire : <span class="hl">mets 3 dans la machine</span>.</p>
+  <p class="calc">f(3) = 2 × 3 + 1 = <b>7</b></p>
+  </div>
+  <h3>Essaie</h3>
+  <div class="widget" data-w="machine"></div>
+  <h3>Le lien avec le graphique</h3>
+  <p>Chaque nombre que tu entres donne un point : l'entrée devient le x, la sortie devient le y. En les mettant tous, on obtient le dessin de la fonction — sa <span class="hl">courbe</span>.</p>
+  <p>Pour <code>f(x) = 2x + 1</code>, ces points forment une droite. Pour <code>f(x) = x²</code>, ils forment une cuvette.</p>`,
+  ex:[
+    {q:"Avec <code>f(x) = 3x − 2</code>, combien vaut <code>f(4)</code> ?", type:"num", a:10,
+     why:"3 × 4 = 12, puis 12 − 2 = 10."},
+    {q:"Avec <code>f(x) = x²</code>, combien vaut <code>f(5)</code> ?", type:"num", a:25,
+     why:"5 × 5 = 25."},
+    {q:"Avec <code>f(x) = x² + 2x</code>, combien vaut <code>f(3)</code> ?", type:"num", a:15,
+     why:"x² = 9 et 2x = 6, donc 9 + 6 = 15."},
+    {q:"Avec <code>f(x) = 4x</code>, combien vaut <code>f(0)</code> ?", type:"num", a:0,
+     why:"4 × 0 = 0."}
+  ]
+},
+{
+  t:"La pente d'une droite",
+  html:`
+  <h3>L'idée</h3>
+  <p>La pente répond à une seule question : <span class="hl">quand j'avance de 1 vers la droite, de combien je monte ?</span></p>
+  <p>Une pente de 3 : je monte de 3. Une pente de 0,5 : je monte d'un demi. Une pente négative : je descends.</p>
+  <h3>Dans la formule</h3>
+  <p>Pour <code>f(x) = ax + b</code> :</p>
+  <ul>
+    <li><b>a</b> est la pente — l'inclinaison,</li>
+    <li><b>b</b> est le point de départ — la hauteur quand x vaut 0.</li>
+  </ul>
+  <p>Reprends la salle de sport de l'étape 5 : <code>2x + 5</code>. Le 5, c'est l'inscription (ce que tu paies avant même de venir). Le 2, c'est ce que chaque séance ajoute. La pente, c'est le prix par séance.</p>
+  <h3>Manipule</h3>
+  <div class="widget" data-w="slope"></div>
+  <h3>Calculer une pente à partir de deux points</h3>
+  <div class="box">
+  <p>Un point à <code>(1 ; 4)</code>, un autre à <code>(3 ; 10)</code>.</p>
+  <p class="calc">montée = 10 − 4 = 6<br>avancée = 3 − 1 = 2<br>pente = 6 ÷ 2 = <b>3</b></p>
+  <p>La pente est toujours la montée divisée par l'avancée.</p>
+  </div>`,
+  ex:[
+    {q:"Quelle est la pente de <code>f(x) = 7x − 2</code> ?", type:"num", a:7,
+     why:"C'est le nombre devant le x."},
+    {q:"Pour <code>f(x) = 3x + 8</code>, combien vaut f quand x = 0 ?", type:"num", a:8,
+     why:"3 × 0 = 0, il reste 8. C'est la hauteur de départ."},
+    {q:"Une droite passe par (2 ; 5) et (6 ; 17). Sa pente vaut :", type:"num", a:3,
+     why:"Montée : 17 − 5 = 12. Avancée : 6 − 2 = 4. Pente : 12 ÷ 4 = 3."},
+    {q:"Une pente de −4 signifie :", type:"qcm",
+     c:["ça monte de 4 quand x avance de 1","ça descend de 4 quand x avance de 1","ça ne bouge pas"], a:1,
+     why:"Une pente négative veut dire que la courbe descend."}
+  ]
+},
+{
+  t:"Sur une courbe, la pente change",
+  html:`
+  <h3>Le problème</h3>
+  <p>Une droite a une seule pente, partout la même. Une courbe, non : elle est plate ici, raide là.</p>
+  <p>Alors la question « quelle est la pente de cette courbe ? » n'a pas de réponse. La bonne question, c'est : <span class="hl">quelle est sa pente à cet endroit précis ?</span></p>
+  <div class="box">
+  <p>Une voiture démarre. En 10 secondes elle parcourt 100 mètres.</p>
+  <p>Sa vitesse moyenne : 10 m/s. Mais à la première seconde elle avançait à peine, et à la dixième elle filait. <span class="hl">La moyenne cache ce qui se passe à chaque instant.</span></p>
+  <p>La vitesse affichée sur le compteur à un instant donné — c'est exactement une pente à un endroit précis. C'est une dérivée.</p>
+  </div>
+  <h3>Regarde la courbe de près</h3>
+  <p>Reviens à la démonstration de la page d'accueil quand tu veux : la droite violette change d'inclinaison selon l'endroit. Elle est plate au creux, raide sur les bords.</p>
+  <h3>Ce qu'il reste à faire</h3>
+  <p>Il nous manque une méthode pour calculer cette pente-à-un-endroit. Les trois prochaines étapes la construisent, pas à pas.</p>`,
+  ex:[
+    {q:"Sur la courbe de <code>f(x) = x²</code>, la pente au creux (en x = 0) vaut :", type:"num", a:0,
+     why:"Au fond de la cuvette, la courbe est horizontale : elle ne monte ni ne descend."},
+    {q:"Pourquoi ne peut-on pas parler de « la » pente d'une courbe ?", type:"qcm",
+     c:["parce qu'elle est trop compliquée à calculer","parce qu'elle n'est pas la même en tout point","parce qu'une courbe n'a pas de pente"], a:1,
+     why:"L'inclinaison change d'un endroit à l'autre : il faut préciser où."},
+    {q:"Le compteur de vitesse d'une voiture affiche :", type:"qcm",
+     c:["la distance parcourue","la vitesse moyenne du trajet","la vitesse à cet instant précis"], a:2,
+     why:"C'est justement une pente à un instant donné — l'idée de la dérivée."}
+  ]
+},
+{
+  t:"La pente entre deux points",
+  html:`
+  <h3>L'idée</h3>
+  <p>On ne sait pas encore calculer la pente en un point. Mais entre <span class="hl">deux</span> points, on sait faire : c'est l'étape 10.</p>
+  <p>On relie les deux points par une droite et on mesure sa pente. Ça donne la pente moyenne sur ce morceau.</p>
+  <h3>Un exemple</h3>
+  <div class="box">
+  <p>Avec <code>f(x) = x²</code>, entre x = 1 et x = 3.</p>
+  <p class="calc">f(1) = 1 × 1 = 1<br>f(3) = 3 × 3 = 9</p>
+  <p>Montée : <code>9 − 1 = 8</code>. Avancée : <code>3 − 1 = 2</code>.</p>
+  <p class="calc">pente = 8 ÷ 2 = <b>4</b></p>
+  </div>
+  <h3>La formule</h3>
+  <p>Toujours la même chose, écrite avec des lettres :</p>
+  <p class="calc">pente entre a et b = <b>( f(b) − f(a) ) ÷ ( b − a )</b></p>
+  <p>Le haut, c'est de combien on est monté. Le bas, de combien on a avancé. Rien de nouveau depuis l'étape 10 — seule la notation change.</p>`,
+  ex:[
+    {q:"Avec <code>f(x) = x²</code>, quelle est la pente entre x = 2 et x = 4 ?", type:"num", a:6,
+     why:"f(2) = 4 et f(4) = 16. Montée : 12. Avancée : 2. Pente : 12 ÷ 2 = 6."},
+    {q:"Avec <code>f(x) = x²</code>, quelle est la pente entre x = 1 et x = 2 ?", type:"num", a:3,
+     why:"f(1) = 1 et f(2) = 4. Montée : 3. Avancée : 1. Pente : 3."},
+    {q:"Avec <code>f(x) = 3x + 1</code>, quelle est la pente entre x = 0 et x = 5 ?", type:"num", a:3,
+     why:"f(0) = 1 et f(5) = 16. Montée : 15. Avancée : 5. Pente : 3. C'est une droite : sa pente vaut 3 partout."}
+  ]
+},
+{
+  t:"Rapprocher les deux points",
+  html:`
+  <h3>L'astuce</h3>
+  <p>La pente entre deux points éloignés est une moyenne grossière. Alors rapprochons-les.</p>
+  <p>On garde le premier point fixe en <code>x = 1</code> et on fait glisser le second vers lui. À chaque fois, on recalcule la pente.</p>
+  <h3>Fais-le toi-même</h3>
+  <p>Le curseur rapproche le second point. Regarde le nombre affiché.</p>
+  <div class="widget" data-w="secant"></div>
+  <h3>Le tableau</h3>
+  <p>Attention, un point à ne pas rater : <span class="hl">c'est nous qui choisissons le second point</span>. Rien ne l'impose.</p>
+  <p>Le premier, lui, ne bouge jamais : il reste en x = 1, puisque c'est là qu'on veut la pente.</p>
+  <p>On va donc faire une série d'essais, en plaçant le second point de plus en plus près de 1 :</p>
+  <p class="calc">3 &nbsp;→&nbsp; 2 &nbsp;→&nbsp; 1,5 &nbsp;→&nbsp; 1,1 &nbsp;→&nbsp; 1,01 &nbsp;→&nbsp; 1,001</p>
+  <p>Ces valeurs n'ont rien de magique : on aurait pu prendre 2,7 ou 1,3. Ce qui compte, c'est qu'elles se rapprochent de 1 à chaque essai.</p>
+  <p>Voici le premier essai en entier.</p>
+  <div class="box">
+  <p><b>Essai n° 1</b> — premier point en x = 1, second en x = 3.</p>
+  <p class="calc">f(1) = 1 × 1 = 1<br>f(3) = 3 × 3 = 9</p>
+  <p>Montée : <code>9 − 1 = 8</code>. Avancée : <code>3 − 1 = 2</code>.</p>
+  <p class="calc">pente = 8 ÷ 2 = <b>4</b></p>
+  <p>C'est la première ligne du tableau ci-dessous.</p>
+  </div>
+  <p>Les autres essais se calculent exactement pareil, avec un second point à chaque fois plus proche. Les colonnes du milieu montrent chaque morceau du calcul.</p>
+  <div class="scrollx">
+  <table class="t">
+  <tr><th>essai</th><th>second point</th><th>f(x) = x²</th><th>montée</th><th>avancée</th><th>pente</th></tr>
+  <tr><td>1</td><td>3</td><td>9</td><td>8</td><td>2</td><td><b>4</b></td></tr>
+  <tr><td>2</td><td>2</td><td>4</td><td>3</td><td>1</td><td><b>3</b></td></tr>
+  <tr><td>3</td><td>1,5</td><td>2,25</td><td>1,25</td><td>0,5</td><td><b>2,5</b></td></tr>
+  <tr><td>4</td><td>1,1</td><td>1,21</td><td>0,21</td><td>0,1</td><td><b>2,1</b></td></tr>
+  <tr><td>5</td><td>1,01</td><td>1,0201</td><td>0,0201</td><td>0,01</td><td><b>2,01</b></td></tr>
+  <tr><td>6</td><td>1,001</td><td>1,002001</td><td>0,002001</td><td>0,001</td><td><b>2,001</b></td></tr>
+  </table>
+  </div>
+  <p>Regarde les deux colonnes du milieu : la montée et l'avancée deviennent toutes les deux minuscules. Mais leur <span class="hl">rapport</span>, lui, se stabilise.</p>
+  <p>Les pentes se serrent autour de <span class="hl">2</span>. Elles ne l'atteignent jamais tout à fait — mais elles s'en approchent autant qu'on veut.</p>
+  <p>Ce nombre vers lequel ça tend, on l'appelle la <b>limite</b>. Ici, la limite vaut 2.</p>
+  <h3>Pourquoi exactement 2, et pas 1,999…</h3>
+  <p>Le tableau suggère 2, il ne le prouve pas. Voici la preuve, en une ligne.</p>
+  <p>Appelons <code>h</code> l'écart entre les deux points. Le second point est donc en <code>1 + h</code>.</p>
+  <p>Repartons de la formule de l'étape 12, qui ne contient aucun carré :</p>
+  <p class="calc">montée = f(second point) − f(premier point)<br>= f(1 + h) − f(1)</p>
+  <p>C'est seulement <span class="hl">maintenant</span> que la fonction entre en jeu. Ici <code>f(x) = x²</code> : la machine met au carré ce qu'on lui donne.</p>
+  <ul>
+    <li>on lui donne <code>1 + h</code> → elle rend <code>(1 + h)²</code></li>
+    <li>on lui donne <code>1</code> → elle rend <code>1²</code></li>
+  </ul>
+  <p class="calc">montée = (1 + h)² <b>− 1²</b></p>
+  <p class="note"><b>Les carrés viennent de f, pas de la méthode.</b> Avec <code>f(x) = 3x</code>, on aurait écrit <code>3(1 + h) − 3(1) = 3h</code>, et la pente vaudrait <code>3h ÷ h = 3</code> — sans avoir rien à rapprocher. C'est bien le <code>²</code> qui crée la difficulté.</p>
+  <p>Traitons les deux morceaux séparément. D'abord <code>(1 + h)²</code>, c'est-à-dire <code>(1 + h)(1 + h)</code>. On distribue, comme à l'étape 6 :</p>
+  <p class="calc">1×1 + 1×h + h×1 + h×h<br>= 1 + h + h + h²<br>= <b>1 + 2h + h²</b></p>
+  <p>Et <code>1²</code> vaut simplement 1. On peut maintenant faire la soustraction :</p>
+  <p class="calc">montée = 1 + 2h + h² − 1</p>
+  <p>Le <code>1</code> et le <code>− 1</code> s'annulent. Il reste :</p>
+  <p class="calc">montée = <b>2h + h²</b></p>
+  <p>L'avancée, elle, vaut <code>h</code> : c'est l'écart entre 1 et 1 + h.</p>
+  <p class="calc">pente = (2h + h²) ÷ h = <b>2 + h</b></p>
+  <div class="box">
+  <p>La pente vaut <b>2 + l'écart</b>. Toujours. Vérifie sur le tableau :</p>
+  <p class="calc">écart 2 &nbsp;→&nbsp; 2 + 2 = 4 &nbsp;✓<br>
+  écart 0,5 &nbsp;→&nbsp; 2 + 0,5 = 2,5 &nbsp;✓<br>
+  écart 0,01 &nbsp;→&nbsp; 2 + 0,01 = 2,01 &nbsp;✓</p>
+  <p>Et quand l'écart devient aussi petit qu'on veut, il ne reste que 2.</p>
+  </div>
+  <p class="note"><b>Un dernier mot sur la division.</b> <code>(2h + h²) ÷ h</code> : chaque morceau est divisé par h. <code>2h ÷ h = 2</code>, et <code>h² ÷ h = h</code> (il restait deux h, on en enlève un). D'où <code>2 + h</code>.</p>
+  <div class="box">
+  <p>Pourquoi ne pas mettre directement les deux points au même endroit ? Parce que la montée serait 0 et l'avancée aussi : <code>0 ÷ 0</code> ne veut rien dire. D'où le détour par « on s'approche sans toucher ».</p>
+  </div>`,
+  ex:[
+    {q:"Dans le tableau, vers quel nombre se dirigent les pentes ?", type:"num", a:2,
+     why:"4 · 3 · 2,5 · 2,1 · 2,01 · 2,001 — elles se resserrent autour de 2."},
+    {q:"Pourquoi ne calcule-t-on pas la pente en mettant les deux points exactement au même endroit ?", type:"qcm",
+     c:["ce serait 0 ÷ 0, qui n'a pas de sens","ce serait trop long","le résultat serait négatif"], a:0,
+     why:"Sans écart, il n'y a ni montée ni avancée : la division est impossible."},
+    {q:"Avec la formule <code>pente = 2 + h</code>, quelle est la pente si l'écart h vaut 0,2 ?", type:"num", a:2.2,
+     why:"2 + 0,2 = 2,2. Le second point serait en 1,2."},
+    {q:"Si les pentes donnaient 6,5 puis 6,1 puis 6,01 puis 6,001, la limite serait :", type:"num", a:6,
+     why:"Les valeurs se resserrent autour de 6."}
+  ]
+},
+{
+  t:"Le nombre dérivé",
+  html:`
+  <h3>De un point à tous les points</h3>
+  <p>Refaisons le calcul ailleurs, toujours pour <code>f(x) = x²</code> :</p>
+  <table class="t">
+  <tr><th>en x =</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+  <tr><th>pente</th><td>2</td><td>4</td><td>6</td><td>8</td><td>10</td></tr>
+  </table>
+  <details class="rev"><summary>Tu vois le motif ? Ouvre quand tu veux vérifier.</summary>
+  <p>La pente vaut toujours le double de x.</p>
+  <p class="calc">si f(x) = x² &nbsp;alors&nbsp; <b>f'(x) = 2x</b></p>
+  </details>
+  <h3>Pourquoi le double</h3>
+  <p>À l'étape précédente, on n'a démontré qu'une seule colonne : en x = 1, la pente vaut 2. Les autres, il faut les expliquer. Et la raison n'est pas dans le calcul — elle est dans ce que <code>x²</code> <span class="hl">est</span>.</p>
+  <p>Un carré de côté x a pour aire x². C'est de là que vient le mot « carré ».</p>
+  <p>La question « à quelle vitesse x² grandit ? » devient donc : <span class="hl">si j'allonge un peu le côté du carré, de combien son aire augmente ?</span></p>
+  <p>Bouge le curseur pour changer le côté, et regarde ce qui s'ajoute.</p>
+  <div class="widget" data-w="carre"></div>
+  <p>Ce qu'on ajoute, ce sont trois morceaux : <b>deux bandes</b> de <code>x × h</code>, et un <b>petit coin</b> de <code>h × h</code>.</p>
+  <p class="calc">aire ajoutée = x·h + x·h + h² = <b>2xh + h²</b></p>
+  <p>La pente, c'est cette aire ajoutée divisée par l'allongement h :</p>
+  <p class="calc">(2xh + h²) ÷ h = <b>2x + h</b></p>
+  <div class="box">
+  <p><b>Le 2 vient des deux dimensions du carré.</b> Quand tu allonges le côté, la matière s'ajoute sur deux faces à la fois : la droite et le haut. Deux bandes, chacune longue de x. D'où 2x.</p>
+  <p>Ce n'est pas une astuce de calcul, c'est de la géométrie. Avec un cube (<code>x³</code>), on collerait trois plaques — et c'est un 3 qui apparaîtrait.</p>
+  </div>
+  <h3>Et le petit coin ?</h3>
+  <p>Il ne disparaît pas par magie : il devient <span class="hl">négligeable devant les bandes</span>.</p>
+  <table class="t">
+  <tr><th>allongement h</th><th>les deux bandes (x = 1)</th><th>le coin</th></tr>
+  <tr><td>0,1</td><td>0,2</td><td>0,01</td></tr>
+  <tr><td>0,01</td><td>0,02</td><td>0,0001</td></tr>
+  <tr><td>0,001</td><td>0,002</td><td>0,000001</td></tr>
+  </table>
+  <p>Le coin rétrécit bien plus vite que les bandes : l'écart se creuse sans fin. À la limite, il ne reste que <code>2x</code>.</p>
+  <h3>Ce que dit vraiment le tableau</h3>
+  <p>Quand le côté vaut 3, les deux bandes mesurent 3 chacune : l'aire grandit <b>six fois plus vite</b> que le côté. Voilà le 6 de la troisième colonne.</p>
+  <p>Quand le côté vaut 5, deux bandes de 5 : le 10 de la dernière colonne. Chaque nombre du tableau, c'est simplement <span class="hl">deux bandes de longueur x</span>.</p>
+  <h3>Le mot enfin posé</h3>
+  <p>Chacune de ces pentes s'appelle un <b>nombre dérivé</b>. On l'écrit <code>f'(1)</code> — qui se lit « f prime de 1 ».</p>
+  <p>La première colonne du tableau dit donc : <span class="hl">f'(1) = 2</span>. C'est ce qu'on a démontré à l'étape précédente en rapprochant les deux points.</p>
+  <h3>La droite tangente</h3>
+  <p>Quand les deux points se rejoignent, la droite qui les relie prend une position limite : elle vient <span class="hl">effleurer la courbe</span> en un seul point. C'est la <b>tangente</b> — la droite violette de la page d'accueil.</p>
+  <p>Le nombre dérivé est sa pente. Deux mots, une seule chose.</p>
+  <div class="box">
+  <p><code>f'</code> est elle-même une machine, comme <code>f</code>. Tu lui donnes une position, elle te rend la pente à cet endroit. On l'appelle la <b>fonction dérivée</b>.</p>
+  </div>
+  <p>Bonne nouvelle : on n'aura plus jamais à refaire ce travail de limite. Des gens l'ont fait une fois pour toutes, et le résultat tient dans le petit tableau de l'étape suivante.</p>`,
+  ex:[
+    {q:"Avec <code>f'(x) = 2x</code>, combien vaut <code>f'(7)</code> ?", type:"num", a:14,
+     why:"2 × 7 = 14. La courbe de x² monte avec une pente de 14 à cet endroit."},
+    {q:"<code>f'(3)</code>, ça veut dire :", type:"qcm",
+     c:["la valeur de la courbe en 3","la pente de la courbe en 3","f multiplié par 3"], a:1,
+     why:"Le prime indique la pente. f(3) donne la hauteur, f'(3) donne l'inclinaison."},
+    {q:"La tangente est une droite qui :", type:"qcm",
+     c:["coupe la courbe en deux points","effleure la courbe en un point","est toujours horizontale"], a:1,
+     why:"C'est la position limite de la droite entre deux points qu'on a rapprochés jusqu'à les confondre."},
+    {q:"Avec <code>f(x) = x²</code>, combien vaut <code>f'(0)</code> ?", type:"num", a:0,
+     why:"2 × 0 = 0. Au creux de la cuvette, la tangente est horizontale."}
+  ]
+},
+{
+  t:"Les règles de dérivation",
+  html:`
+  <h3>Le tableau</h3>
+  <p>Voici tout ce qu'il faut savoir pour dériver la plupart des fonctions qu'on rencontre.</p>
+  <table class="t">
+  <tr><th>f(x)</th><th>f'(x)</th><th>pourquoi</th></tr>
+  <tr><td>5 (un nombre seul)</td><td>0</td><td>c'est plat, ça ne monte pas</td></tr>
+  <tr><td>x</td><td>1</td><td>ça monte de 1 quand x avance de 1</td></tr>
+  <tr><td>x²</td><td>2x</td><td>l'étape précédente</td></tr>
+  <tr><td>x³</td><td>3x²</td><td>même mécanique</td></tr>
+  <tr><td>xⁿ</td><td>n·xⁿ⁻¹</td><td>la règle générale</td></tr>
+  </table>
+  <h3>La règle générale</h3>
+  <p>Elle tient en deux gestes : <span class="hl">le petit chiffre du haut descend devant, puis il diminue de 1</span>.</p>
+  <p class="calc">x⁵ → <b>5x⁴</b> &nbsp;&nbsp; x³ → <b>3x²</b> &nbsp;&nbsp; x² → <b>2x¹</b> = 2x</p>
+  <h3>Deux règles d'assemblage</h3>
+  <ul>
+    <li><b>Un nombre devant reste devant.</b> Si <code>f(x) = 5x²</code>, alors <code>f'(x) = 5 × 2x = 10x</code>.</li>
+    <li><b>Une somme se dérive morceau par morceau.</b> Chaque terme séparément, on recolle.</li>
+  </ul>
+  <h3>Un exemple complet</h3>
+  <div class="box">
+  <p class="calc">f(x) = 3x² + 5x − 4</p>
+  <p>Morceau par morceau :</p>
+  <ul>
+    <li><code>3x²</code> → le 2 descend : <code>3 × 2x = 6x</code></li>
+    <li><code>5x</code> → la dérivée de x vaut 1 : <code>5 × 1 = 5</code></li>
+    <li><code>−4</code> → un nombre seul : <code>0</code></li>
+  </ul>
+  <p class="calc">f'(x) = <b>6x + 5</b></p>
+  <p>Et si on veut la pente en x = 2 : <code>f'(2) = 6 × 2 + 5 = 17</code>.</p>
+  </div>
+  <p>C'est tout. Tu sais dériver.</p>
+  <h3>Ce que ça couvre</h3>
+  <p>On a travaillé sur <code>x²</code> tout au long du parcours, mais c'était un cobaye. La méthode ne s'intéressait pas à lui.</p>
+  <p>Avec la règle générale et les deux règles d'assemblage, tu dérives n'importe quel <b>polynôme</b> — c'est-à-dire toute fonction faite de puissances de x additionnées :</p>
+  <p class="calc">f(x) = 7x⁵ − 3x² + 4x − 9<br>f'(x) = <b>35x⁴ − 6x + 4</b></p>
+  <details class="rev"><summary>Vérifie le détail si tu veux.</summary>
+  <ul>
+    <li><code>7x⁵</code> → le 5 descend : <code>7 × 5x⁴ = 35x⁴</code></li>
+    <li><code>−3x²</code> → le 2 descend : <code>−3 × 2x = −6x</code></li>
+    <li><code>4x</code> → <code>4</code></li>
+    <li><code>−9</code> → <code>0</code></li>
+  </ul>
+  </details>
+  <h3>Et au-delà</h3>
+  <p>Il existe d'autres familles de fonctions — sinus, exponentielle, logarithme, racine carrée — qui ne sont pas des puissances de x. Chacune a sa dérivée, obtenue exactement par le calcul de l'étape 13, avec les h.</p>
+  <p>Personne ne le refait à chaque fois : ce travail a été fait une fois, il y a trois siècles, et les résultats tiennent dans une table.</p>
+  <div class="box">
+  <p>C'est là tout l'intérêt de ce que tu viens de traverser. Le calcul pénible avec les h, tu ne l'as fait qu'une fois — <span class="hl">pour comprendre d'où ça vient</span>. Ensuite, on applique.</p>
+  <p>Beaucoup de gens apprennent la table sans jamais voir le rapprochement des deux points. Toi, tu l'as vu.</p>
+  </div>
+  <p>Tu sais dériver tous les polynômes : c'est déjà le gros du travail au lycée. Les six étapes suivantes ajoutent les autres familles, et les deux règles qui manquent — celle du produit et celle des fonctions emboîtées.</p>`,
+  ex:[
+    {q:"La dérivée de <code>x⁴</code> est :", type:"qcm",
+     c:["4x³","4x⁵","x³"], a:0,
+     why:"Le 4 descend devant, puis l'exposant passe de 4 à 3."},
+    {q:"Si <code>f(x) = 5x²</code>, alors <code>f'(x)</code> vaut :", type:"qcm",
+     c:["5x","10x","10x²"], a:1,
+     why:"Le 5 reste devant, x² devient 2x : 5 × 2x = 10x."},
+    {q:"Si <code>f(x) = 4x + 7</code>, combien vaut <code>f'(x)</code> ?", type:"num", a:4,
+     why:"4x se dérive en 4, et le 7 disparaît. C'est une droite : sa pente vaut 4 partout."},
+    {q:"Si <code>f(x) = x³ + 2x</code>, alors <code>f'(x)</code> vaut :", type:"qcm",
+     c:["3x² + 2","3x + 2","x² + 2"], a:0,
+     why:"x³ donne 3x², et 2x donne 2. On recolle."},
+    {q:"Avec <code>f(x) = 3x² + 5x − 4</code>, combien vaut <code>f'(1)</code> ?", type:"num", a:11,
+     why:"f'(x) = 6x + 5, donc f'(1) = 6 + 5 = 11."},
+    {q:"Avec <code>f(x) = x² − 6x</code>, pour quelle valeur de x la tangente est-elle horizontale ?", type:"num", a:3,
+     why:"f'(x) = 2x − 6. Horizontale veut dire pente nulle : 2x − 6 = 0, donc x = 3."},
+    {q:"Si <code>f(x) = 2x⁵ − 4x + 1</code>, alors <code>f'(x)</code> vaut :", type:"qcm",
+     c:["10x⁴ − 4","2x⁴ − 4","10x⁴ − 4x"], a:0,
+     why:"2x⁵ : le 5 descend, 2 × 5x⁴ = 10x⁴. Puis −4x donne −4, et le 1 disparaît."}
+  ]
+},
+{
+  t:"Les angles",
+  html:`
+  <h3>Ce qu'un angle mesure</h3>
+  <p>Un angle ne mesure pas une longueur. Il mesure <span class="hl">une quantité de rotation</span> — de combien on a tourné entre deux directions.</p>
+  <p>C'est important : deux angles peuvent être identiques alors que les traits qui les dessinent sont de tailles très différentes. Allonger les branches ne change pas l'angle.</p>
+  <div class="widget" data-w="angle"></div>
+  <h3>Pourquoi 360 ?</h3>
+  <p>Le tour complet vaut 360 degrés. Le choix vient des Babyloniens, il y a 4000 ans : 360 est proche du nombre de jours dans l'année, et surtout il se divise très bien — par 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 18, 20…</p>
+  <p>C'est pratique : la plupart des partages tombent juste.</p>
+  <table class="t">
+  <tr><th>rotation</th><th>degrés</th><th>nom</th></tr>
+  <tr><td>tour complet</td><td>360°</td><td>—</td></tr>
+  <tr><td>demi-tour</td><td>180°</td><td>angle plat</td></tr>
+  <tr><td>quart de tour</td><td>90°</td><td>angle droit</td></tr>
+  </table>
+  <p>L'angle droit se repère par un petit carré dans le coin, jamais par un arc.</p>
+  <h3>Les angles d'un triangle</h3>
+  <p>Dans <b>tout</b> triangle, les trois angles additionnés font toujours 180°. Sans exception.</p>
+  <div class="box">
+  <p>La preuve tient sur une feuille. Découpe un triangle en papier, n'importe lequel. Déchire les trois coins. Pose-les côte à côte, pointes jointes.</p>
+  <p>Ils forment une ligne droite. Un angle plat : <span class="hl">180°</span>.</p>
+  </div>
+  <p>Conséquence utile : dans un triangle rectangle, un angle prend déjà 90°. Il ne reste que 90° à partager entre les deux autres. Si l'un fait 30°, l'autre fait forcément 60°.</p>
+  <h3>Deux angles particuliers</h3>
+  <ul>
+    <li><b>Complémentaires</b> : ils font 90° ensemble.</li>
+    <li><b>Supplémentaires</b> : ils font 180° ensemble.</li>
+  </ul>`,
+  ex:[
+    {q:"Dans un triangle, deux angles font 50° et 70°. Combien fait le troisième ?", type:"num", a:60,
+     why:"50 + 70 = 120. Il reste 180 − 120 = 60°."},
+    {q:"Dans un triangle rectangle, un angle non droit fait 25°. Combien fait le dernier ?", type:"num", a:65,
+     why:"L'angle droit prend 90°. Il reste 90 − 25 = 65°."},
+    {q:"Trois quarts de tour, ça fait combien de degrés ?", type:"num", a:270,
+     why:"3 × 90 = 270°."},
+    {q:"Si on allonge les deux branches d'un angle, l'angle :", type:"qcm",
+     c:["augmente","ne change pas","diminue"], a:1,
+     why:"Un angle mesure une rotation, pas une longueur."}
+  ]
+},
+{
+  t:"Le triangle rectangle",
+  html:`
+  <h3>Le vocabulaire</h3>
+  <p>Un triangle rectangle a un angle droit. Le côté opposé à cet angle droit — le plus long — s'appelle l'<b>hypoténuse</b>.</p>
+  <p>Pour les deux autres côtés, le nom dépend de <span class="hl">l'angle qu'on regarde</span> :</p>
+  <ul>
+    <li>le côté <b>opposé</b> : celui d'en face,</li>
+    <li>le côté <b>adjacent</b> : celui qui touche l'angle (sans être l'hypoténuse).</li>
+  </ul>
+  <p>Change d'angle, et opposé et adjacent s'échangent. C'est la source d'erreur numéro un.</p>
+  <h3>Pythagore</h3>
+  <p>Dans un triangle rectangle, les trois côtés sont liés :</p>
+  <p class="calc">(côté)² + (autre côté)² = (hypoténuse)²</p>
+  <div class="box">
+  <p>Côtés de 3 et 4. Quelle est l'hypoténuse ?</p>
+  <p class="calc">3² + 4² = 9 + 16 = 25<br>hypoténuse = √25 = <b>5</b></p>
+  </div>
+  <h3>L'idée qui fait tout marcher</h3>
+  <p>Voici le point clé. Prends un triangle rectangle avec un angle de 30°. Agrandis-le, réduis-le, photocopie-le en grand : les longueurs changent, mais <span class="hl">les rapports entre les côtés ne changent pas</span>.</p>
+  <p>Si le petit côté fait la moitié de l'hypoténuse dans le petit triangle, il fera encore la moitié dans le grand.</p>
+  <div class="widget" data-w="triangle"></div>
+  <p>Ce rapport ne dépend donc <b>que de l'angle</b>. Pas de la taille. C'est ça qui permet de lui donner un nom une fois pour toutes.</p>
+  <h3>Les trois rapports</h3>
+  <div class="box">
+  <p class="calc">sin(angle) = opposé ÷ hypoténuse<br>
+  cos(angle) = adjacent ÷ hypoténuse<br>
+  tan(angle) = opposé ÷ adjacent</p>
+  </div>
+  <p>Moyen de retenir : <b>SOH · CAH · TOA</b>. Sinus-Opposé-Hypoténuse, Cosinus-Adjacent-Hypoténuse, Tangente-Opposé-Adjacent.</p>
+  <h3>À quoi ça sert concrètement</h3>
+  <div class="box">
+  <p>Tu es à 50 m d'un immeuble. Tu lèves les yeux vers le sommet : ton regard fait un angle de 40° avec l'horizontale. Quelle est la hauteur ?</p>
+  <p>L'opposé (la hauteur) et l'adjacent (les 50 m) → c'est la tangente.</p>
+  <p class="calc">tan(40°) ≈ 0,84<br>hauteur = 50 × 0,84 ≈ <b>42 m</b></p>
+  <p>Mesurer un angle est facile. Grimper avec un mètre ruban, moins. C'est pour ça que la trigonométrie a été inventée — pour les astronomes et les arpenteurs.</p>
+  </div>`,
+  ex:[
+    {q:"Un triangle rectangle a des côtés de 6 et 8. Combien vaut l'hypoténuse ?", type:"num", a:10,
+     why:"36 + 64 = 100, et √100 = 10."},
+    {q:"L'hypoténuse fait 10, le côté opposé à l'angle fait 6. Combien vaut le sinus de cet angle ?", type:"num", a:0.6,
+     why:"sin = opposé ÷ hypoténuse = 6 ÷ 10 = 0,6."},
+    {q:"Si on agrandit un triangle rectangle sans changer ses angles, le cosinus :", type:"qcm",
+     c:["augmente","reste identique","diminue"], a:1,
+     why:"C'est un rapport entre deux côtés : les deux grandissent pareil, le rapport ne bouge pas."},
+    {q:"Quel rapport utilise l'opposé et l'adjacent, sans l'hypoténuse ?", type:"qcm",
+     c:["le sinus","le cosinus","la tangente"], a:2,
+     why:"TOA : Tangente = Opposé ÷ Adjacent."},
+    {q:"L'hypoténuse fait 4, l'adjacent fait 2. Combien vaut le cosinus ?", type:"num", a:0.5,
+     why:"cos = adjacent ÷ hypoténuse = 2 ÷ 4 = 0,5."}
+  ]
+},
+{
+  t:"Le cercle trigonométrique",
+  html:`
+  <h3>Un problème</h3>
+  <p>Le triangle rectangle a une limite : ses angles ne peuvent pas dépasser 90°. Que vaudrait <code>sin(150°)</code> ? Le triangle ne sait pas répondre.</p>
+  <p>Solution : passer au cercle.</p>
+  <h3>Le montage</h3>
+  <p>Un cercle de rayon <b>1</b>, centré sur l'origine. Un point démarre à droite et tourne dans le sens inverse des aiguilles d'une montre.</p>
+  <p>Pour un angle donné, le point a une position. Et là, tout devient simple :</p>
+  <div class="box">
+  <p class="calc">cos(angle) = <b>la position horizontale</b> du point<br>
+  sin(angle) = <b>la hauteur</b> du point</p>
+  </div>
+  <p>Pourquoi ça colle avec le triangle : le rayon vaut 1, donc « diviser par l'hypoténuse » revient à diviser par 1. Les rapports deviennent directement les coordonnées.</p>
+  <div class="widget" data-w="cercle"></div>
+  <h3>Ce que le cercle permet</h3>
+  <p>Maintenant l'angle peut aller où il veut : 150°, 300°, 720°, ou même en négatif (on tourne dans l'autre sens). Le point a toujours une position, donc sin et cos ont toujours une valeur.</p>
+  <p>Et on voit apparaître les <b>signes</b> : à gauche du cercle, le cosinus devient négatif. En bas, c'est le sinus.</p>
+  <h3>Les valeurs à connaître</h3>
+  <table class="t">
+  <tr><th>angle</th><td>0°</td><td>90°</td><td>180°</td><td>270°</td></tr>
+  <tr><th>cos</th><td>1</td><td>0</td><td>−1</td><td>0</td></tr>
+  <tr><th>sin</th><td>0</td><td>1</td><td>0</td><td>−1</td></tr>
+  </table>
+  <p>Pas à apprendre par cœur : il suffit de placer le point sur le cercle et de lire ses coordonnées.</p>
+  <h3>La relation fondamentale</h3>
+  <p>Le point est à distance 1 du centre. Applique Pythagore au triangle formé par ses coordonnées :</p>
+  <p class="calc">cos²(x) + sin²(x) = <b>1</b></p>
+  <p>Toujours vrai, pour n'importe quel angle. C'est Pythagore, rien d'autre — habillé différemment.</p>`,
+  ex:[
+    {q:"Sur le cercle, <code>cos</code> correspond à :", type:"qcm",
+     c:["la hauteur du point","la position horizontale","la distance au centre"], a:1,
+     why:"Le cosinus se lit à l'horizontale, le sinus à la verticale."},
+    {q:"Combien vaut <code>sin(90°)</code> ?", type:"num", a:1,
+     why:"Au quart de tour, le point est tout en haut du cercle : sa hauteur vaut 1."},
+    {q:"Combien vaut <code>cos(180°)</code> ?", type:"num", a:-1,
+     why:"Au demi-tour, le point est complètement à gauche : sa position horizontale vaut −1."},
+    {q:"Pour un angle entre 90° et 180°, le cosinus est :", type:"qcm",
+     c:["positif","négatif","nul"], a:1,
+     why:"Le point est dans la moitié gauche du cercle."},
+    {q:"Si <code>cos(x) = 0,6</code>, combien vaut <code>sin²(x)</code> ?", type:"num", a:0.64,
+     why:"cos² + sin² = 1. Or 0,6² = 0,36. Donc sin² = 1 − 0,36 = 0,64."}
+  ]
+},
+{
+  t:"Les radians et les vagues",
+  html:`
+  <h3>Une autre façon de mesurer</h3>
+  <p>Les degrés sont arbitraires — 360 est une convention babylonienne. Les mathématiciens utilisent une unité qui ne doit rien à personne : le <b>radian</b>.</p>
+  <p>L'idée : au lieu de compter les degrés, on mesure <span class="hl">la distance parcourue sur le cercle</span> de rayon 1.</p>
+  <div class="box">
+  <p>Le tour complet, c'est le périmètre du cercle : <code>2πr</code>, avec r = 1, donc <code>2π ≈ 6,28</code>.</p>
+  <p class="calc">tour complet = 2π ≈ 6,28<br>demi-tour = π ≈ 3,14<br>quart de tour = π/2 ≈ 1,57</p>
+  </div>
+  <p>Convertir : 180° correspond à π. Donc pour passer des degrés aux radians, on multiplie par <code>π/180</code>.</p>
+  <p class="note">Pourquoi s'embêter ? Parce qu'en radians, les formules deviennent propres. La dérivée du sinus est exactement le cosinus. En degrés, il faudrait traîner un facteur 0,01745 partout. Le radian n'est pas une complication, c'est une simplification.</p>
+  <h3>De la roue à la vague</h3>
+  <p>Voici le passage le plus visuel de tout le chapitre. Le point tourne sur le cercle. On reporte sa hauteur, instant après instant, sur un graphique à droite.</p>
+  <div class="widget" data-w="deroule"></div>
+  <p>La rotation se déroule en <span class="hl">vague</span>. C'est la courbe du sinus.</p>
+  <h3>Ce que ça décrit</h3>
+  <p>Tout ce qui revient au même point après un cycle : un pendule, une corde de guitare, la marée, le courant alternatif, les saisons, un cœur qui bat.</p>
+  <p>Ces phénomènes n'ont pas de cercle visible — mais mathématiquement, il y a toujours une rotation cachée derrière une oscillation.</p>
+  <h3>Le vocabulaire des vagues</h3>
+  <ul>
+    <li><b>Période</b> : la durée d'un cycle complet. Pour <code>sin x</code>, c'est 2π.</li>
+    <li><b>Amplitude</b> : la hauteur des sommets. Pour <code>sin x</code>, c'est 1.</li>
+  </ul>
+  <p>On les règle en modifiant la formule :</p>
+  <div class="box">
+  <p><code>3·sin(x)</code> → amplitude 3. La vague monte trois fois plus haut.</p>
+  <p><code>sin(2x)</code> → deux fois plus de cycles. La vague est resserrée.</p>
+  <p>En son : l'amplitude est le <b>volume</b>, la période est la <b>note</b>.</p>
+  </div>
+  <h3>Sinus et cosinus, même vague</h3>
+  <p>Le cosinus est un sinus décalé d'un quart de tour. Même forme, départ différent : le sinus part de 0, le cosinus part de 1.</p>
+  <p>Logique sur le cercle : quand le point est à droite, sa hauteur est nulle et sa position horizontale maximale.</p>`,
+  ex:[
+    {q:"Un demi-tour, en radians, vaut :", type:"qcm",
+     c:["π/2","π","2π"], a:1,
+     why:"Le tour complet vaut 2π, donc la moitié vaut π."},
+    {q:"Combien de degrés vaut π/2 radians ?", type:"num", a:90,
+     why:"π vaut 180°, donc la moitié fait 90°."},
+    {q:"Quelle est l'amplitude de <code>5·sin(x)</code> ?", type:"num", a:5,
+     why:"Le nombre devant multiplie la hauteur des sommets."},
+    {q:"<code>sin(3x)</code> comparé à <code>sin(x)</code> :", type:"qcm",
+     c:["monte trois fois plus haut","oscille trois fois plus vite","est décalé de 3"], a:1,
+     why:"Le nombre à l'intérieur agit sur la vitesse du cycle, pas sur la hauteur."},
+    {q:"Une vague qui se répète toutes les 2π unités a une période de :", type:"num", a:6.283185,
+     why:"2π ≈ 6,28. (Tape 6,28)"}
+  ]
+},
+{
+  t:"Les puissances, sans limite",
+  html:`
+  <h3>Reprenons</h3>
+  <p>À l'étape 4, une puissance était le nombre de fois qu'on écrit un nombre dans une multiplication. <code>2³ = 2×2×2</code>.</p>
+  <p>Cette définition ne marche que pour des petits chiffres entiers et positifs. Que serait <code>2⁻¹</code> ? Ou <code>2<sup>0,5</sup></code> ? On ne peut pas écrire un nombre « moins une fois ».</p>
+  <p>Pourtant ces écritures ont un sens. Voici comment on l'obtient.</p>
+  <h3>La règle qui décide de tout</h3>
+  <p>Une seule chose compte : <span class="hl">multiplier deux puissances additionne leurs exposants</span>.</p>
+  <p class="calc">2³ × 2² = 2⁵</p>
+  <p>Tout le reste découle de la volonté de garder cette règle vraie, quoi qu'il arrive.</p>
+  <h3>L'exposant zéro</h3>
+  <div class="box">
+  <p>Si la règle tient, alors <code>2³ × 2⁰ = 2³</code>.</p>
+  <p>Donc <code>2⁰</code> est le nombre qui ne change rien quand on multiplie. C'est <b>1</b>.</p>
+  </div>
+  <h3>Les exposants négatifs</h3>
+  <div class="box">
+  <p>Si la règle tient, alors <code>2³ × 2⁻³ = 2⁰ = 1</code>.</p>
+  <p>Donc <code>2⁻³</code> est le nombre qui, multiplié par 8, donne 1. C'est <b>1/8</b>.</p>
+  <p class="calc">x⁻ⁿ = <b>1/xⁿ</b></p>
+  </div>
+  <p>Un exposant négatif ne veut pas dire « résultat négatif ». Il veut dire <span class="hl">en dessous de la barre</span>. <code>2⁻³</code> vaut 0,125 — un petit nombre positif.</p>
+  <h3>Les exposants fractionnaires</h3>
+  <div class="box">
+  <p>Si la règle tient, alors <code>x<sup>½</sup> × x<sup>½</sup> = x¹ = x</code>.</p>
+  <p>Donc <code>x<sup>½</sup></code> est le nombre qui, multiplié par lui-même, donne x. C'est la <b>racine carrée</b>.</p>
+  <p class="calc">√x = x<sup>1/2</sup> &nbsp;·&nbsp; ∛x = x<sup>1/3</sup></p>
+  </div>
+  <p>Rien n'a été inventé arbitrairement : chaque extension est la seule qui préserve la règle de départ.</p>
+  <table class="t">
+  <tr><th>écriture</th><th>sens</th><th>exemple</th></tr>
+  <tr><td>xⁿ</td><td>multiplié n fois</td><td>2³ = 8</td></tr>
+  <tr><td>x⁰</td><td>1, toujours</td><td>2⁰ = 1</td></tr>
+  <tr><td>x⁻ⁿ</td><td>1/xⁿ</td><td>2⁻³ = 0,125</td></tr>
+  <tr><td>x<sup>1/n</sup></td><td>racine n-ième</td><td>4<sup>1/2</sup> = 2</td></tr>
+  </table>`,
+  ex:[
+    {q:"Combien vaut <code>5⁻²</code> ?", type:"num", a:0.04,
+     why:"1/5² = 1/25 = 0,04."},
+    {q:"Combien vaut <code>9<sup>1/2</sup></code> ?", type:"num", a:3,
+     why:"C'est √9, donc 3."},
+    {q:"Combien vaut <code>2⁻¹</code> ?", type:"num", a:0.5,
+     why:"1/2 = 0,5."},
+    {q:"<code>x⁻³</code> est une autre écriture de :", type:"qcm",
+     c:["−x³","1/x³","x/3"], a:1,
+     why:"Un exposant négatif place la puissance sous la barre."},
+    {q:"Combien vaut <code>10⁰</code> ?", type:"num", a:1,
+     why:"Toute puissance zéro vaut 1."}
+  ]
+},
+{
+  t:"L'exponentielle et le nombre e",
+  html:`
+  <h3>Le x change de place</h3>
+  <p>Jusqu'ici, x était en bas : <code>x²</code>, <code>x³</code>. Maintenant on le met en haut : <code>2ˣ</code>.</p>
+  <p>Ça change tout. Dans <code>x²</code>, on met au carré un nombre qui grandit. Dans <code>2ˣ</code>, <span class="hl">c'est le nombre de multiplications qui grandit</span>.</p>
+  <table class="t">
+  <tr><th>x</th><td>1</td><td>2</td><td>5</td><td>10</td><td>20</td></tr>
+  <tr><th>x²</th><td>1</td><td>4</td><td>25</td><td>100</td><td>400</td></tr>
+  <tr><th>2ˣ</th><td>2</td><td>4</td><td>32</td><td>1024</td><td>1 048 576</td></tr>
+  </table>
+  <p>À x = 2 elles sont à égalité. À x = 20, l'exponentielle est 2600 fois devant. Elle finit toujours par écraser n'importe quelle puissance.</p>
+  <div class="box">
+  <p><b>La légende de l'échiquier.</b> Un grain de riz sur la première case, deux sur la deuxième, quatre sur la troisième, en doublant à chaque fois.</p>
+  <p>Sur la 64<sup>e</sup> case : plus de mille milliards de tonnes de riz. Des milliers d'années de production mondiale.</p>
+  </div>
+  <h3>La propriété centrale</h3>
+  <p>Ce qui définit une exponentielle : <span class="hl">elle grandit d'autant plus vite qu'elle est déjà grande</span>.</p>
+  <p>Un compte à 5 % rapporte 50 € quand il contient 1000 €, et 500 € quand il en contient 10 000. La croissance est proportionnelle à ce qu'il y a déjà.</p>
+  <p>C'est le mécanisme des populations, des épidémies, des intérêts composés, des réactions en chaîne.</p>
+  <h3>D'où sort e</h3>
+  <p>Pour chaque base, la pente est proportionnelle à la hauteur — mais avec un facteur différent.</p>
+  <table class="t">
+  <tr><th>base</th><th>pente ÷ hauteur</th></tr>
+  <tr><td>2ˣ</td><td>0,693</td></tr>
+  <tr><td>eˣ</td><td><b>1</b></td></tr>
+  <tr><td>3ˣ</td><td>1,099</td></tr>
+  </table>
+  <p>Entre 2 et 3, il existe une base où ce facteur tombe exactement sur 1. On l'appelle <b>e ≈ 2,71828</b>.</p>
+  <div class="box">
+  <p>e n'a pas été choisi, il a été <span class="hl">trouvé</span>. Comme π, c'est une constante que la nature impose. Elle apparaît partout où quelque chose croît ou décroît proportionnellement à lui-même : intérêts continus, refroidissement d'un café, désintégration radioactive.</p>
+  </div>
+  <div class="widget" data-w="expo"></div>
+  <h3>La décroissance</h3>
+  <p>Avec un exposant négatif, tout s'inverse : <code>e<sup>−x</sup></code> décroît, de plus en plus lentement.</p>
+  <p>C'est la courbe d'un café qui refroidit, d'un médicament qui s'élimine, d'un isotope qui se désintègre.</p>`,
+  ex:[
+    {q:"Combien vaut <code>2¹⁰</code> ?", type:"num", a:1024,
+     why:"Le doublement dix fois de suite donne 1024."},
+    {q:"Dans <code>3ˣ</code>, qu'est-ce qui grandit quand x augmente ?", type:"qcm",
+     c:["le nombre qu'on multiplie","le nombre de multiplications","les deux"], a:1,
+     why:"La base reste 3 ; c'est le nombre de fois qu'on la multiplie qui augmente."},
+    {q:"Le nombre e vaut environ :", type:"qcm",
+     c:["1,41","2,72","3,14"], a:1,
+     why:"e ≈ 2,718. (1,41 est √2, et 3,14 est π.)"},
+    {q:"Une population double tous les ans. Après 5 ans, elle a été multipliée par :", type:"num", a:32,
+     why:"2⁵ = 32."},
+    {q:"<code>e<sup>−x</sup></code> décrit :", type:"qcm",
+     c:["une croissance qui s'emballe","une décroissance qui ralentit","une oscillation"], a:1,
+     why:"L'exposant négatif inverse la courbe : elle décroît de plus en plus lentement."}
+  ]
+},
+{
+  t:"Le logarithme",
+  html:`
+  <h3>La question inversée</h3>
+  <p>L'exponentielle répond à : « je double 6 fois, j'arrive à combien ? » → 64.</p>
+  <p>Le logarithme pose la question à l'envers : <span class="hl">« pour arriver à 64, combien de doublements ? »</span> → 6.</p>
+  <p>C'est la machine inverse. Elle défait ce que l'exponentielle fait.</p>
+  <div class="box">
+  <p class="calc">log₂(64) = 6 &nbsp;&nbsp;car&nbsp;&nbsp; 2⁶ = 64<br>
+  log₁₀(1000) = 3 &nbsp;&nbsp;car&nbsp;&nbsp; 10³ = 1000<br>
+  ln(e²) = 2 &nbsp;&nbsp;car&nbsp;&nbsp; l'exposant de e est 2</p>
+  </div>
+  <p>Un logarithme, c'est <b>un exposant</b>. Rien d'autre. Quand tu écris <code>log(1000) = 3</code>, le 3 n'est pas une taille : c'est le nombre de fois qu'il faut multiplier 10 par lui-même.</p>
+  <h3>Les trois bases courantes</h3>
+  <ul>
+    <li><code>log₁₀</code> ou <code>log</code> : par 10. Celui des ordres de grandeur.</li>
+    <li><code>ln</code> : par e. Le « logarithme naturel », celui des maths et des sciences.</li>
+    <li><code>log₂</code> : par 2. Celui de l'informatique.</li>
+  </ul>
+  <h3>Ce que ça fait aux nombres</h3>
+  <p>Le logarithme <span class="hl">écrase les grands nombres</span> :</p>
+  <table class="t">
+  <tr><th>x</th><td>1</td><td>10</td><td>100</td><td>1000</td><td>1 000 000</td></tr>
+  <tr><th>log(x)</th><td>0</td><td>1</td><td>2</td><td>3</td><td>6</td></tr>
+  </table>
+  <p>Un million devient 6. Multiplier x par 10 n'ajoute qu'un seul cran au logarithme.</p>
+  <div class="widget" data-w="log"></div>
+  <div class="box">
+  <p>C'est pour ça qu'on l'utilise là où les valeurs s'étalent sur des ordres de grandeur énormes :</p>
+  <ul>
+    <li><b>Richter</b> : magnitude 7 libère 100 fois plus d'énergie que magnitude 5.</li>
+    <li><b>Décibels</b> : +10 dB, c'est 10 fois plus de puissance sonore.</li>
+    <li><b>pH</b> : pH 3 est 100 fois plus acide que pH 5.</li>
+  </ul>
+  <p>Sans logarithme, ces échelles iraient de 1 à 1 000 000 000. Illisible.</p>
+  </div>
+  <h3>Les trois règles à connaître</h3>
+  <p>La propriété la plus utile : <span class="hl">le logarithme transforme les multiplications en additions</span>.</p>
+  <div class="box">
+  <p class="calc">log(a × b) = log(a) + log(b)<br>log(a ÷ b) = log(a) − log(b)<br>log(a<sup>n</sup>) = n × log(a)</p>
+  </div>
+  <p>Pourquoi ? Parce qu'un logarithme est un exposant, et que multiplier des puissances additionne les exposants. C'est la règle de l'étape précédente, vue par l'autre bout.</p>
+  <p class="note">Avant les calculatrices, on multipliait de grands nombres en cherchant leurs logarithmes dans des tables, en les additionnant, puis en revenant en arrière. Trois siècles de navigation et d'astronomie ont fonctionné comme ça. La règle à calcul, c'est exactement ce principe, en bois.</p>`,
+  ex:[
+    {q:"Combien vaut <code>log₁₀(100)</code> ?", type:"num", a:2,
+     why:"10² = 100, donc deux multiplications par 10."},
+    {q:"Combien vaut <code>log₂(8)</code> ?", type:"num", a:3,
+     why:"2³ = 8 : trois doublements."},
+    {q:"Un logarithme, c'est essentiellement :", type:"qcm",
+     c:["un exposant","une racine","une multiplication"], a:0,
+     why:"log(1000) = 3 répond à : à quelle puissance élever 10 pour obtenir 1000."},
+    {q:"Si <code>log(a) = 2</code> et <code>log(b) = 5</code>, combien vaut <code>log(a × b)</code> ?", type:"num", a:7,
+     why:"Le logarithme change les produits en sommes : 2 + 5 = 7."},
+    {q:"Combien vaut <code>log₁₀(1)</code> ?", type:"num", a:0,
+     why:"10⁰ = 1 : zéro multiplication."},
+    {q:"Un séisme de magnitude 6 comparé à un de magnitude 4 libère :", type:"qcm",
+     c:["1,5 fois plus d'énergie","2 fois plus","100 fois plus"], a:2,
+     why:"L'échelle est logarithmique : deux crans valent 10 × 10 = 100."}
+  ]
+},
+{
+  t:"Dériver racines et inverses",
+  html:`
+  <h3>Rien de nouveau à apprendre</h3>
+  <p>Tu sais maintenant que <code>1/x</code> et <code>√x</code> sont des puissances déguisées :</p>
+  <p class="calc">1/x = x⁻¹ &nbsp;&nbsp;·&nbsp;&nbsp; √x = x<sup>1/2</sup></p>
+  <p>Or la règle de l'étape 15 ne demande pas que l'exposant soit un entier positif. <span class="hl">Elle marche pour n'importe quel exposant.</span> Il suffit donc de réécrire, puis d'appliquer.</p>
+  <h3>Un sur x</h3>
+  <div class="box">
+  <p class="calc">f(x) = 1/x = x⁻¹</p>
+  <p>Le −1 descend devant, et −1 − 1 = −2 :</p>
+  <p class="calc">f'(x) = −1 · x⁻² = <b>−1/x²</b></p>
+  <p>La pente est toujours négative : la courbe de 1/x descend partout. Ça se vérifie à l'œil.</p>
+  </div>
+  <h3>La racine carrée</h3>
+  <p>Même geste : ½ descend devant, et ½ − 1 = −½.</p>
+  <p class="calc">f(x) = √x = x<sup>1/2</sup> &nbsp;→&nbsp; f'(x) = ½ · x<sup>−1/2</sup> = <b>1 / (2√x)</b></p>
+  <div class="box">
+  <p>Ce résultat dit quelque chose de visible : plus x est grand, plus le dénominateur grossit, donc plus la pente est <b>faible</b>. La courbe de √x monte de moins en moins vite. C'est bien ce qu'on observe — elle s'aplatit.</p>
+  </div>`,
+  ex:[
+    {q:"La dérivée de <code>x⁻³</code> est :", type:"qcm",
+     c:["−3x⁻⁴","3x⁻²","−3x⁻²"], a:0,
+     why:"Le −3 descend devant, puis −3 − 1 = −4."},
+    {q:"Avec <code>f(x) = 1/x</code>, combien vaut <code>f'(1)</code> ?", type:"num", a:-1,
+     why:"f'(x) = −1/x². En x = 1 : −1/1 = −1."},
+    {q:"Combien vaut <code>√25</code> ?", type:"num", a:5,
+     why:"5 × 5 = 25."},
+    {q:"Avec <code>f(x) = √x</code>, combien vaut <code>f'(4)</code> ?", type:"num", a:0.25,
+     why:"f'(x) = 1/(2√x). En x = 4 : √4 = 2, donc 1/(2×2) = 1/4 = 0,25."}
+  ]
+},
+{
+  t:"Dériver sinus et cosinus",
+  html:`
+  <h3>D'où ils viennent</h3>
+  <p>Imagine un point qui tourne sur un cercle, à vitesse constante. À chaque instant, il a une hauteur et une position horizontale.</p>
+  <ul>
+    <li><b>sin</b> est sa <span class="hl">hauteur</span>,</li>
+    <li><b>cos</b> est sa <span class="hl">position horizontale</span>.</li>
+  </ul>
+  <p>Quand on déroule ce mouvement dans le temps, on obtient une vague qui monte et descend sans fin, entre −1 et 1. C'est la courbe du sinus.</p>
+  <p>Ces fonctions décrivent tout ce qui oscille : un son, une marée, un ressort, un courant alternatif.</p>
+  <h3>Une précaution : les radians</h3>
+  <p>On ne mesure pas l'angle en degrés ici, mais en <b>radians</b> : on mesure la longueur du trajet parcouru sur un cercle de rayon 1.</p>
+  <p>Un demi-tour vaut donc <code>π ≈ 3,14</code>. Un quart de tour, <code>π/2 ≈ 1,57</code>.</p>
+  <p class="note">Ce n'est pas un détail : les règles ci-dessous ne sont vraies qu'en radians. En degrés, il faudrait traîner un facteur de conversion partout. C'est précisément pour éviter ça que les radians existent.</p>
+  <h3>La pente d'une vague</h3>
+  <p>Bouge le curseur. La courbe du haut est le sinus, la droite violette est sa tangente. En bas, la pente est reportée point par point.</p>
+  <div class="widget" data-w="sinus"></div>
+  <p>Regarde ce que la pente fait :</p>
+  <ul>
+    <li>au départ (x = 0), la vague monte à pleine vitesse → pente <b>1</b></li>
+    <li>au sommet, elle est plate un instant → pente <b>0</b></li>
+    <li>en redescendant, elle plonge → pente <b>négative</b></li>
+  </ul>
+  <p>Cette suite de valeurs — 1, puis 0, puis −1, puis 0 — dessine exactement la courbe du cosinus. D'où :</p>
+  <div class="box">
+  <p class="calc">si f(x) = sin x &nbsp;alors&nbsp; <b>f'(x) = cos x</b><br>
+  si f(x) = cos x &nbsp;alors&nbsp; <b>f'(x) = −sin x</b></p>
+  </div>
+  <h3>Le signe moins</h3>
+  <p>Le cosinus démarre tout en haut, à 1. Une courbe qui part d'un sommet ne peut que <span class="hl">descendre</span> : sa pente est négative au départ. D'où le moins.</p>
+  <p class="note">Si tu dérives quatre fois de suite : sin → cos → −sin → −cos → sin. On revient au point de départ. Le mouvement circulaire se retrouve jusque dans les dérivées.</p>`,
+  ex:[
+    {q:"La dérivée de <code>sin x</code> est :", type:"qcm",
+     c:["−cos x","cos x","sin x"], a:1,
+     why:"La pente du sinus, relevée point par point, dessine le cosinus."},
+    {q:"La dérivée de <code>cos x</code> est :", type:"qcm",
+     c:["sin x","−sin x","−cos x"], a:1,
+     why:"Le cosinus part d'un sommet : il commence par descendre, d'où le signe moins."},
+    {q:"Quelle est la pente de <code>sin x</code> en x = 0 ?", type:"num", a:1,
+     why:"La pente vaut cos(0), et cos(0) = 1. C'est là que la vague monte le plus vite."},
+    {q:"Au sommet d'une vague, la pente vaut :", type:"num", a:0,
+     why:"Au sommet, la courbe est horizontale un instant : elle ne monte plus et ne descend pas encore."},
+    {q:"Un demi-tour de cercle, en radians, vaut environ :", type:"qcm",
+     c:["1,57","3,14","6,28"], a:1,
+     why:"C'est π, environ 3,14."}
+  ]
+},
+{
+  t:"Dériver exponentielle et logarithme",
+  html:`
+  <h3>Une croissance qui s'emballe</h3>
+  <p>Certaines choses grandissent d'autant plus vite qu'elles sont déjà grandes : un compte à intérêts composés, une population, une épidémie.</p>
+  <p>Doubler à chaque étape donne <code>2ˣ</code>. Tripler donne <code>3ˣ</code>. Attention à ne pas confondre avec <code>x²</code> : ici, <span class="hl">c'est x qui est en haut</span>. C'est le nombre de fois qu'on multiplie qui augmente.</p>
+  <table class="t">
+  <tr><th>x</th><td>0</td><td>1</td><td>2</td><td>3</td><td>10</td></tr>
+  <tr><th>x²</th><td>0</td><td>1</td><td>4</td><td>9</td><td>100</td></tr>
+  <tr><th>2ˣ</th><td>1</td><td>2</td><td>4</td><td>8</td><td>1024</td></tr>
+  </table>
+  <h3>Le nombre e</h3>
+  <p>Pour chacune de ces courbes, la pente est proportionnelle à la hauteur. Pour <code>2ˣ</code>, la pente vaut environ 0,69 fois la hauteur. Pour <code>3ˣ</code>, environ 1,10 fois.</p>
+  <p>Entre 2 et 3, il existe donc une valeur où le facteur tombe pile sur 1. On l'appelle <b>e</b>, et il vaut environ <code>2,718</code>.</p>
+  <div class="box">
+  <p class="calc">si f(x) = eˣ &nbsp;alors&nbsp; <b>f'(x) = eˣ</b></p>
+  <p>La seule fonction qui est sa propre dérivée. Sa pente est égale à sa hauteur, partout.</p>
+  <p>À la hauteur 5, elle monte avec une pente de 5. À la hauteur 100, une pente de 100. Voilà pourquoi une croissance exponentielle devient vite incontrôlable : plus elle est haute, plus elle accélère.</p>
+  </div>
+  <h3>Le logarithme</h3>
+  <p><code>ln</code> est la machine inverse. Elle répond à la question : <span class="hl">à quelle puissance faut-il élever e pour obtenir ce nombre ?</span></p>
+  <p>Elle défait ce que l'exponentielle fait. <code>ln(e³) = 3</code>. Et <code>ln(1) = 0</code>, puisque e⁰ = 1.</p>
+  <p>Là où l'exponentielle s'emballe, le logarithme fait l'inverse : il monte de plus en plus <b>lentement</b>. Passer de 1 à 10 le fait grimper de 2,3. Passer de 100 à 1000 — dix fois plus d'écart — le fait grimper de 2,3 aussi.</p>
+  <div class="box">
+  <p class="calc">si f(x) = ln x &nbsp;alors&nbsp; <b>f'(x) = 1/x</b></p>
+  <p>Plus x est grand, plus la pente est petite. La courbe s'aplatit sans jamais s'arrêter de monter.</p>
+  </div>
+  <p class="note">Curiosité : <code>1/x</code> est la seule puissance que la règle de l'étape 15 ne peut pas produire. Pour obtenir <code>x⁻¹</code>, il faudrait partir de <code>x⁰</code>, dont la dérivée vaut 0. C'est le logarithme qui bouche ce trou.</p>`,
+  ex:[
+    {q:"La dérivée de <code>eˣ</code> est :", type:"qcm",
+     c:["x·eˣ⁻¹","eˣ","1/eˣ"], a:1,
+     why:"C'est la seule fonction qui est sa propre dérivée."},
+    {q:"Avec <code>f(x) = eˣ</code>, combien vaut la pente en x = 0 ?", type:"num", a:1,
+     why:"La pente est égale à la hauteur, et e⁰ = 1."},
+    {q:"La dérivée de <code>ln x</code> est :", type:"qcm",
+     c:["1/x","ln x","x"], a:0,
+     why:"Plus x est grand, plus la pente est faible : la courbe s'aplatit."},
+    {q:"Avec <code>f(x) = ln x</code>, combien vaut <code>f'(4)</code> ?", type:"num", a:0.25,
+     why:"1/4 = 0,25."},
+    {q:"Combien vaut <code>2⁵</code> ?", type:"num", a:32,
+     why:"2 multiplié 5 fois par lui-même : 32."}
+  ]
+},
+{
+  t:"Multiplier deux fonctions",
+  html:`
+  <h3>Le piège</h3>
+  <p>Quand deux fonctions sont multipliées, on aimerait dériver chacune de son côté. <span class="hl">Ça ne marche pas.</span></p>
+  <div class="box">
+  <p>Vérifions sur un cas qu'on connaît : <code>x · x</code>, c'est <code>x²</code>, dont la dérivée vaut <code>2x</code>.</p>
+  <p>Si on dérivait séparément : <code>1 × 1 = 1</code>. Faux — ce n'est pas 2x.</p>
+  </div>
+  <h3>Le bon calcul</h3>
+  <p>Reviens au rectangle. Un rectangle de côtés f et g a pour aire <code>f × g</code>. Les deux côtés grandissent en même temps.</p>
+  <p>Comme pour le carré de l'étape 14, l'aire gagne <b>deux bandes</b> :</p>
+  <ul>
+    <li>une bande due à l'allongement de f, longue de g,</li>
+    <li>une bande due à l'allongement de g, longue de f,</li>
+    <li>et le petit coin, toujours négligeable.</li>
+  </ul>
+  <div class="box">
+  <p class="calc">(f × g)' = <b>f' · g + f · g'</b></p>
+  <p>« Je dérive le premier, je garde le second. Puis je garde le premier, je dérive le second. J'additionne. »</p>
+  </div>
+  <p>Testons sur <code>x · x</code> : <code>1 × x + x × 1 = 2x</code>. Cette fois ça tombe juste.</p>
+  <h3>Un exemple</h3>
+  <div class="box">
+  <p class="calc">f(x) = x² · sin x</p>
+  <ul>
+    <li>je dérive le premier, je garde le second : <code>2x · sin x</code></li>
+    <li>je garde le premier, je dérive le second : <code>x² · cos x</code></li>
+  </ul>
+  <p class="calc">f'(x) = <b>2x·sin x + x²·cos x</b></p>
+  </div>
+  <h3>Et la division</h3>
+  <p>Même logique, avec un moins et un dénominateur :</p>
+  <p class="calc">(f / g)' = <b>(f'·g − f·g') / g²</b></p>
+  <p>L'ordre compte ici, à cause du signe moins : on commence toujours par dériver celui du haut.</p>`,
+  ex:[
+    {q:"<code>(f × g)'</code> vaut :", type:"qcm",
+     c:["f' × g'","f'·g + f·g'","f'·g − f·g'"], a:1,
+     why:"Deux bandes : chacune est le produit d'une fonction dérivée par l'autre gardée intacte."},
+    {q:"Avec <code>f(x) = x · eˣ</code>, <code>f'(x)</code> vaut :", type:"qcm",
+     c:["eˣ + x·eˣ","x·eˣ","eˣ"], a:0,
+     why:"Je dérive x (ça donne 1, donc 1×eˣ), puis je dérive eˣ (ça donne eˣ, donc x·eˣ). J'additionne."},
+    {q:"Avec <code>f(x) = x³ · x²</code>, la dérivée vaut :", type:"qcm",
+     c:["6x⁴","5x⁴","3x²·2x"], a:1,
+     why:"x³·x² = x⁵, dont la dérivée est 5x⁴. La règle du produit donne 3x²·x² + x³·2x = 3x⁴ + 2x⁴ = 5x⁴. Même résultat."},
+    {q:"Avec <code>f(x) = x · cos x</code>, <code>f'(x)</code> vaut :", type:"qcm",
+     c:["cos x − x·sin x","cos x + x·sin x","−sin x"], a:0,
+     why:"1 × cos x, puis x × (−sin x). D'où cos x − x·sin x."}
+  ]
+},
+{
+  t:"Les fonctions emboîtées",
+  html:`
+  <h3>Une machine dans une machine</h3>
+  <p>Que faire de <code>sin(3x)</code> ? Ce n'est pas un produit : c'est un <span class="hl">emboîtement</span>. On calcule d'abord 3x, puis on met le résultat dans le sinus.</p>
+  <p>Deux machines à la suite. Et deux machines à la suite, ça multiplie les vitesses.</p>
+  <div class="box">
+  <p>Imagine deux engrenages. Le premier tourne 3 fois plus vite que la manivelle. Le second tourne 2 fois plus vite que le premier.</p>
+  <p>Au total, la sortie va <code>3 × 2 = 6</code> fois plus vite que la manivelle. <span class="hl">Les vitesses se multiplient.</span></p>
+  </div>
+  <h3>La règle</h3>
+  <p class="calc">dérivée de l'extérieur (en laissant l'intérieur tel quel) <b>×</b> dérivée de l'intérieur</p>
+  <p>Pour <code>sin(3x)</code> :</p>
+  <ul>
+    <li>l'extérieur est le sinus, sa dérivée est le cosinus — on laisse l'intérieur : <code>cos(3x)</code></li>
+    <li>l'intérieur est <code>3x</code>, sa dérivée est <code>3</code></li>
+  </ul>
+  <p class="calc">→ <b>3·cos(3x)</b></p>
+  <h3>Trois autres</h3>
+  <div class="box">
+  <p class="calc">(3x + 1)⁵ &nbsp;→&nbsp; 5(3x + 1)⁴ × 3 = <b>15(3x + 1)⁴</b></p>
+  <p class="calc">e<sup>5x</sup> &nbsp;→&nbsp; e<sup>5x</sup> × 5 = <b>5e<sup>5x</sup></b></p>
+  <p class="calc">ln(x²) &nbsp;→&nbsp; (1/x²) × 2x = <b>2/x</b></p>
+  </div>
+  <h3>Comment repérer l'emboîtement</h3>
+  <p>Pose-toi la question : <span class="hl">si je devais calculer cette fonction à la main, dans quel ordre je ferais les opérations ?</span></p>
+  <p>Pour <code>sin(3x)</code> avec x = 2 : d'abord 3 × 2 = 6, ensuite sin(6). L'ordre du calcul révèle l'emboîtement — et on dérive dans l'ordre inverse, de l'extérieur vers l'intérieur.</p>
+  <p class="note">Vérification possible : <code>(2x)²</code> vaut <code>4x²</code>, dont la dérivée est <code>8x</code>. Par la règle : <code>2(2x) × 2 = 8x</code>. Ça colle.</p>`,
+  ex:[
+    {q:"La dérivée de <code>(3x + 1)⁵</code> est :", type:"qcm",
+     c:["5(3x + 1)⁴","15(3x + 1)⁴","3(3x + 1)⁴"], a:1,
+     why:"5(3x+1)⁴ pour l'extérieur, multiplié par 3 pour l'intérieur : 15(3x+1)⁴."},
+    {q:"La dérivée de <code>sin(2x)</code> est :", type:"qcm",
+     c:["cos(2x)","2cos(2x)","2sin(2x)"], a:1,
+     why:"cos(2x) pour l'extérieur, × 2 pour l'intérieur."},
+    {q:"La dérivée de <code>e<sup>3x</sup></code> est :", type:"qcm",
+     c:["e<sup>3x</sup>","3e<sup>3x</sup>","3e<sup>2x</sup>"], a:1,
+     why:"L'exponentielle est sa propre dérivée, × 3 pour l'intérieur."},
+    {q:"Avec <code>f(x) = (2x)²</code>, combien vaut <code>f'(1)</code> ?", type:"num", a:8,
+     why:"(2x)² = 4x², donc f'(x) = 8x. En x = 1 : 8."}
+  ]
+},
+{
+  t:"La table complète",
+  html:`
+  <h3>Tout ce qui précède, sur une page</h3>
+  <div class="scrollx">
+  <table class="t">
+  <tr><th>f(x)</th><th>f'(x)</th></tr>
+  <tr><td>un nombre seul</td><td>0</td></tr>
+  <tr><td>x</td><td>1</td></tr>
+  <tr><td>xⁿ</td><td>n·xⁿ⁻¹</td></tr>
+  <tr><td>1/x</td><td>−1/x²</td></tr>
+  <tr><td>√x</td><td>1/(2√x)</td></tr>
+  <tr><td>sin x</td><td>cos x</td></tr>
+  <tr><td>cos x</td><td>−sin x</td></tr>
+  <tr><td>eˣ</td><td>eˣ</td></tr>
+  <tr><td>ln x</td><td>1/x</td></tr>
+  </table>
+  </div>
+  <h3>Les quatre règles d'assemblage</h3>
+  <div class="scrollx">
+  <table class="t">
+  <tr><th>situation</th><th>règle</th></tr>
+  <tr><td>k · f</td><td>k · f'</td></tr>
+  <tr><td>f + g</td><td>f' + g'</td></tr>
+  <tr><td>f × g</td><td>f'·g + f·g'</td></tr>
+  <tr><td>f emboîtée dans g</td><td>on multiplie les deux dérivées</td></tr>
+  </table>
+  </div>
+  <h3>La méthode, face à n'importe quelle fonction</h3>
+  <p>Une seule question à se poser, dans cet ordre :</p>
+  <ul>
+    <li><b>1.</b> Est-ce une somme ? → je découpe et je dérive chaque morceau.</li>
+    <li><b>2.</b> Est-ce un produit ou un quotient ? → règle des deux bandes.</li>
+    <li><b>3.</b> Est-ce un emboîtement ? → extérieur × intérieur.</li>
+    <li><b>4.</b> Sinon, c'est dans la table.</li>
+  </ul>
+  <div class="box">
+  <p><code>f(x) = 3x² + sin(2x)</code></p>
+  <p>C'est une somme → deux morceaux. <code>3x²</code> donne <code>6x</code>. <code>sin(2x)</code> est un emboîtement → <code>2cos(2x)</code>.</p>
+  <p class="calc">f'(x) = <b>6x + 2cos(2x)</b></p>
+  </div>
+  <h3>Où ça sert, une fois qu'on sait</h3>
+  <ul>
+    <li><b>Trouver un maximum ou un minimum.</b> Au sommet d'une courbe, la tangente est plate : la dérivée vaut 0. Résoudre <code>f'(x) = 0</code> localise les optimums — le coût le plus bas, le rendement le plus haut.</li>
+    <li><b>Décrire le mouvement.</b> La dérivée de la position, c'est la vitesse. La dérivée de la vitesse, c'est l'accélération.</li>
+    <li><b>Approcher une courbe.</b> Sur un tout petit intervalle, une courbe se confond avec sa tangente. C'est comme ça qu'une machine calcule des valeurs qu'elle ne connaît pas.</li>
+  </ul>
+  <p>Tu as fait le chemin complet, du <code>2 + 3 × 4</code> jusqu'ici.</p>`,
+  ex:[
+    {q:"Avec <code>f(x) = 3sin x + 2x</code>, <code>f'(x)</code> vaut :", type:"qcm",
+     c:["3cos x + 2","3cos x","−3cos x + 2"], a:0,
+     why:"Une somme : chaque morceau séparément. 3sin x donne 3cos x, et 2x donne 2."},
+    {q:"Avec <code>f(x) = x² · eˣ</code>, <code>f'(x)</code> vaut :", type:"qcm",
+     c:["2x · eˣ","2x·eˣ + x²·eˣ","2x + eˣ"], a:1,
+     why:"Un produit : je dérive le premier en gardant le second, puis l'inverse."},
+    {q:"Avec <code>f(x) = √x</code>, combien vaut <code>f'(9)</code> ?", type:"num", a:0.1666667,
+     why:"f'(x) = 1/(2√x). √9 = 3, donc 1/6 ≈ 0,167. (Tape 0,167)"},
+    {q:"Avec <code>f(x) = x² − 4x + 1</code>, en quel point la tangente est-elle horizontale ?", type:"num", a:2,
+     why:"f'(x) = 2x − 4. On cherche où ça vaut 0 : 2x = 4, donc x = 2. C'est le creux de la courbe."},
+    {q:"Avec <code>f(x) = e<sup>3x</sup></code>, combien vaut <code>f'(0)</code> ?", type:"num", a:3,
+     why:"f'(x) = 3e³ˣ. En x = 0 : e⁰ = 1, donc 3 × 1 = 3."},
+    {q:"La dérivée de <code>cos(5x)</code> est :", type:"qcm",
+     c:["−5sin(5x)","5sin(5x)","−sin(5x)"], a:0,
+     why:"cos donne −sin, on garde l'intérieur, et on multiplie par 5."}
+  ]
+}
+];
+
+/* ==================================================================
+   2. ÉTAT ET SAUVEGARDE
+   ================================================================== */
+const KEY = "parcours-derivees-v1";
+let state = { done: [], last: 0 };
+
+async function load(){
+  try{
+    if(!window.storage) return;
+    const r = await window.storage.get(KEY);
+    if(r && r.value){ const p = JSON.parse(r.value); if(p && Array.isArray(p.done)) state = p; }
+  }catch(e){ /* première visite : rien à charger */ }
+}
+async function save(){
+  try{ if(window.storage) await window.storage.set(KEY, JSON.stringify(state)); }catch(e){}
+}
+
+/* ==================================================================
+   3. OUTILS DE DESSIN
+   ================================================================== */
+const C = { ink:"#1B2440", grid:"#E1E9F3", gridS:"#CFDCEC", violet:"#4A3AA8", violet2:"#7B6BE8", soft:"#5C6784", yellow:"#F2C230" };
+
+function setupCanvas(cv, hRatio){
+  const avail = cv.parentElement.clientWidth;
+  const w = Math.max(avail - (avail < 380 ? 22 : 30), 240);
+  const narrow = window.innerWidth < 520;
+  const minH = narrow ? 170 : 190, maxH = narrow ? 300 : 330;
+  const h = Math.round(Math.min(Math.max(w * (hRatio||0.62), minH), maxH));
+  const dpr = Math.min(window.devicePixelRatio || 1, 2.5);  // au-dela, coût inutile
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  cv.style.width = w + "px"; cv.style.height = h + "px";
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return { ctx, w, h };
+}
+
+function makeView(w, h, xmin, xmax, ymin, ymax){
+  return {
+    X: x => (x - xmin) / (xmax - xmin) * w,
+    Y: y => h - (y - ymin) / (ymax - ymin) * h,
+    xmin, xmax, ymin, ymax
+  };
+}
+
+function drawGrid(ctx, w, h, v, stepX, stepY){
+  ctx.fillStyle = "#fff"; ctx.fillRect(0,0,w,h);
+  ctx.lineWidth = 1; ctx.strokeStyle = C.grid;
+  ctx.beginPath();
+  for(let x = Math.ceil(v.xmin/stepX)*stepX; x <= v.xmax; x += stepX){
+    ctx.moveTo(Math.round(v.X(x))+.5, 0); ctx.lineTo(Math.round(v.X(x))+.5, h);
+  }
+  for(let y = Math.ceil(v.ymin/stepY)*stepY; y <= v.ymax; y += stepY){
+    ctx.moveTo(0, Math.round(v.Y(y))+.5); ctx.lineTo(w, Math.round(v.Y(y))+.5);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = C.soft; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, Math.round(v.Y(0))+.5); ctx.lineTo(w, Math.round(v.Y(0))+.5);
+  ctx.moveTo(Math.round(v.X(0))+.5, 0); ctx.lineTo(Math.round(v.X(0))+.5, h);
+  ctx.stroke();
+}
+
+function drawFn(ctx, v, w, f, color, width){
+  ctx.strokeStyle = color; ctx.lineWidth = width||2.5;
+  ctx.lineJoin = "round"; ctx.beginPath();
+  let started = false;
+  for(let px = 0; px <= w; px += 1.5){
+    const x = v.xmin + px/w * (v.xmax - v.xmin);
+    const y = f(x);
+    if(!isFinite(y)){ started = false; continue; }
+    const py = v.Y(y);
+    if(py < -2000 || py > 2000){ started = false; continue; }
+    if(!started){ ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+}
+
+function drawPoint(ctx, v, x, y, color, r){
+  ctx.fillStyle = color; ctx.beginPath();
+  ctx.arc(v.X(x), v.Y(y), r||5.5, 0, 7); ctx.fill();
+  ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+}
+
+function fmt(n, d){
+  const s = (Math.abs(n) < 1e-9 ? 0 : n).toFixed(d===undefined?1:d);
+  return s.replace(".", ",");
+}
+
+/* ==================================================================
+   4. LA DÉMO DE LA PAGE D'ACCUEIL
+   ================================================================== */
+function heroDraw(){
+  const cv = document.getElementById("heroCv");
+  if(!cv || !cv.offsetParent) return;
+  const { ctx, w, h } = setupCanvas(cv, 0.58);
+  const v = makeView(w, h, -3.2, 3.2, -1.6, 8);
+  drawGrid(ctx, w, h, v, 1, 1);
+  const f = x => x*x;
+  const a = parseFloat(document.getElementById("heroS").value) / 50;
+  const slope = 2*a;
+  // tangente
+  ctx.strokeStyle = C.violet2; ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(v.X(v.xmin), v.Y(f(a) + slope*(v.xmin - a)));
+  ctx.lineTo(v.X(v.xmax), v.Y(f(a) + slope*(v.xmax - a)));
+  ctx.stroke();
+  drawFn(ctx, v, w, f, C.ink, 3);
+  drawPoint(ctx, v, a, f(a), C.violet, 7);
+  document.getElementById("heroX").textContent = fmt(a);
+  document.getElementById("heroP").textContent = fmt(slope);
+}
+
+/* ==================================================================
+   5. LES WIDGETS DES LEÇONS
+   ================================================================== */
+const WIDGETS = {
+
+  point(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">le point est en <b class="o">(3 ; 2)</b></div>
+      <input type="range" min="0" max="24" value="14" aria-label="Déplacer le point"></div></div>`;
+    const cv = host.querySelector("canvas"), sl = host.querySelector("input"), out = host.querySelector(".o");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.62);
+      const v = makeView(w, h, -3.5, 5.5, -2.5, 4.5);
+      drawGrid(ctx, w, h, v, 1, 1);
+      const idx = +sl.value;
+      const px = -1 + (idx % 7), py = -1 + Math.floor(idx / 7);
+      ctx.strokeStyle = C.violet2; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]);
+      ctx.beginPath();
+      ctx.moveTo(v.X(px), v.Y(0)); ctx.lineTo(v.X(px), v.Y(py));
+      ctx.lineTo(v.X(0), v.Y(py)); ctx.stroke(); ctx.setLineDash([]);
+      drawPoint(ctx, v, px, py, C.violet, 7);
+      out.textContent = "(" + px + " ; " + py + ")";
+    }
+    sl.max = 27; sl.value = 15;
+    sl.addEventListener("input", d); host._redraw = d; d();
+  },
+
+  machine(host){
+    host.innerHTML = `<div class="demo" style="text-align:center">
+      <div style="font-family:var(--mono);font-size:15px;color:var(--soft);margin-bottom:10px">f(x) = 2x + 1</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
+        <input type="number" value="3" style="font-family:var(--mono);font-size:19px;width:78px;padding:9px;text-align:center;border:1.5px solid var(--grid-strong);border-radius:3px;background:var(--paper);color:var(--ink)" aria-label="Nombre à mettre dans la machine">
+        <span style="font-size:22px;color:var(--violet)">→</span>
+        <span style="font-family:var(--display);font-weight:700;background:var(--ink);color:#fff;padding:9px 14px;border-radius:3px">machine</span>
+        <span style="font-size:22px;color:var(--violet)">→</span>
+        <span class="o" style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--violet);min-width:60px">7</span>
+      </div>
+      <div class="demo-lab" style="margin-top:12px;text-align:center">f(<span class="i">3</span>) = 2 × <span class="i">3</span> + 1 = <b class="o2">7</b></div>
+    </div>`;
+    const inp = host.querySelector("input"), o = host.querySelector(".o"), o2 = host.querySelector(".o2");
+    const is = host.querySelectorAll(".i");
+    function d(){
+      const x = parseFloat(inp.value);
+      if(!isFinite(x)) return;
+      const y = 2*x + 1;
+      o.textContent = fmt(y, Number.isInteger(y) ? 0 : 1);
+      o2.textContent = o.textContent;
+      is.forEach(s => s.textContent = fmt(x, Number.isInteger(x) ? 0 : 1));
+    }
+    inp.addEventListener("input", d); d();
+  },
+
+  slope(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">f(x) = <b class="o">2x + 1</b></div></div>
+      <div class="demo-row"><span style="font-family:var(--mono);font-size:13px;width:78px">pente a</span>
+        <input type="range" class="a" min="-40" max="40" value="20" aria-label="Régler la pente"></div>
+      <div class="demo-row"><span style="font-family:var(--mono);font-size:13px;width:78px">départ b</span>
+        <input type="range" class="b" min="-30" max="30" value="10" aria-label="Régler la hauteur de départ"></div>
+    </div>`;
+    const cv = host.querySelector("canvas"), A = host.querySelector(".a"), B = host.querySelector(".b"), out = host.querySelector(".o");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.6);
+      const v = makeView(w, h, -1, 6, -3, 8);
+      drawGrid(ctx, w, h, v, 1, 1);
+      const a = +A.value / 10, b = +B.value / 10;
+      drawFn(ctx, v, w, x => a*x + b, C.violet, 3);
+      // l'escalier : avancer de 1, monter de a
+      ctx.strokeStyle = C.yellow; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(v.X(1), v.Y(a+b)); ctx.lineTo(v.X(2), v.Y(a+b)); ctx.lineTo(v.X(2), v.Y(2*a+b));
+      ctx.stroke();
+      ctx.fillStyle = C.ink; ctx.font = "600 12px ui-monospace,monospace";
+      ctx.fillText("+1", v.X(1.4), v.Y(a+b) - 7);
+      ctx.fillText((a>=0?"+":"") + fmt(a), v.X(2) + 6, v.Y(1.5*a+b) + 4);
+      out.textContent = fmt(a) + "x " + (b>=0 ? "+ " : "− ") + fmt(Math.abs(b));
+    }
+    A.addEventListener("input", d); B.addEventListener("input", d);
+    host._redraw = d; d();
+  },
+
+  carre(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">côté du carré <b class="ox">3</b> &nbsp;·&nbsp; les deux bandes ajoutent <b class="op">3 + 3</b></div>
+      <input type="range" min="1" max="5" step="1" value="3" aria-label="Changer le côté du carré"></div></div>`;
+    const cv = host.querySelector("canvas"), sl = host.querySelector("input");
+    const ox = host.querySelector(".ox"), op = host.querySelector(".op");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.78);
+      ctx.fillStyle = "#fff"; ctx.fillRect(0,0,w,h);
+      const x = +sl.value, hh = 0.55, M = 6.2;
+      const u = Math.min(w, h) / M;                 // taille d'une unité en pixels
+      const ox0 = (w - M*u) / 2 + 10, oy0 = h - 16; // origine en bas à gauche
+      const PX = n => ox0 + n*u, PY = n => oy0 - n*u;
+      const box = (x0,y0,x1,y1,fill) => {
+        ctx.fillStyle = fill;
+        ctx.fillRect(PX(x0), PY(y1), (x1-x0)*u, (y1-y0)*u);
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+        ctx.strokeRect(PX(x0), PY(y1), (x1-x0)*u, (y1-y0)*u);
+      };
+      box(0, 0, x, x, "rgba(27,36,64,.07)");        // le carré de départ
+      box(x, 0, x+hh, x, "rgba(123,107,232,.34)");  // bande de droite
+      box(0, x, x, x+hh, "rgba(123,107,232,.34)");  // bande du haut
+      box(x, x, x+hh, x+hh, "rgba(242,194,48,.75)");// le petit coin
+      ctx.fillStyle = C.ink; ctx.textAlign = "center";
+      ctx.font = "700 " + Math.round(u*0.42) + "px ui-monospace,monospace";
+      ctx.fillText("x²", PX(x/2), PY(x/2) + u*0.15);
+      ctx.font = "700 12px ui-monospace,monospace";
+      ctx.fillStyle = C.violet;
+      ctx.fillText("x·h", PX(x + hh/2), PY(x/2));
+      ctx.fillText("x·h", PX(x/2), PY(x + hh/2) + 4);
+      ctx.fillStyle = "#8a6d00";
+      ctx.fillText("h²", PX(x + hh/2), PY(x + hh/2) + 4);
+      ctx.strokeStyle = C.soft; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+      ctx.beginPath();
+      ctx.moveTo(PX(0), PY(x)); ctx.lineTo(PX(0) - 8, PY(x));
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = C.soft; ctx.textAlign = "right"; ctx.font = "700 12px ui-monospace,monospace";
+      ctx.fillText("x = " + x, PX(0) - 11, PY(x/2));
+      ox.textContent = x;
+      op.textContent = x + " + " + x + " = " + (2*x);
+    }
+    sl.addEventListener("input", d); host._redraw = d; d();
+  },
+
+  angle(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">angle <b class="oa">45°</b> &nbsp;·&nbsp; longueur des branches <b class="ol">moyenne</b></div></div>
+      <div class="demo-row"><span style="font-family:var(--mono);font-size:13px;width:66px">angle</span>
+        <input type="range" class="a" min="5" max="355" value="45" aria-label="Changer l'angle"></div>
+      <div class="demo-row"><span style="font-family:var(--mono);font-size:13px;width:66px">taille</span>
+        <input type="range" class="r" min="30" max="100" value="65" aria-label="Changer la longueur des branches"></div>
+    </div>`;
+    const cv = host.querySelector("canvas"), A = host.querySelector(".a"), R = host.querySelector(".r");
+    const oa = host.querySelector(".oa"), ol = host.querySelector(".ol");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.62);
+      ctx.fillStyle = "#fff"; ctx.fillRect(0,0,w,h);
+      const deg = +A.value, rad = deg * Math.PI/180;
+      const cx = w*0.28, cy = h*0.74;
+      const len = (+R.value/100) * Math.min(w*0.6, h*0.82);
+      const ex = cx + len, ey = cy;
+      const fx = cx + len*Math.cos(-rad), fy = cy + len*Math.sin(-rad);
+      // secteur de l'angle
+      ctx.fillStyle = "rgba(255,226,122,.55)";
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.arc(cx, cy, 40, 0, -rad, true); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 3; ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(ex,ey); ctx.lineTo(cx,cy); ctx.lineTo(fx,fy); ctx.stroke();
+      ctx.fillStyle = C.violet; ctx.beginPath(); ctx.arc(cx,cy,5,0,7); ctx.fill();
+      ctx.fillStyle = C.ink; ctx.font = "700 15px ui-monospace,monospace"; ctx.textAlign = "left";
+      const mid = -rad/2;
+      ctx.fillText(deg + "°", cx + 52*Math.cos(mid), cy + 52*Math.sin(mid) + 5);
+      oa.textContent = deg + "°";
+      ol.textContent = +R.value < 50 ? "courtes" : (+R.value < 80 ? "moyennes" : "longues");
+    }
+    A.addEventListener("input", d); R.addEventListener("input", d);
+    host._redraw = d; d();
+  },
+
+  triangle(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">les longueurs changent, <b class="oo">les rapports non</b></div>
+      <input type="range" min="35" max="100" value="60" aria-label="Agrandir le triangle"></div></div>`;
+    const cv = host.querySelector("canvas"), sl = host.querySelector("input"), oo = host.querySelector(".oo");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.66);
+      ctx.fillStyle = "#fff"; ctx.fillRect(0,0,w,h);
+      const k = +sl.value/100;
+      const ang = 33 * Math.PI/180;
+      const base = k * w * 0.62, haut = base * Math.tan(ang);
+      const x0 = w*0.14, y0 = h - 22;
+      const X1 = x0 + base, Y1 = y0, X2 = X1, Y2 = y0 - haut;
+      ctx.fillStyle = "rgba(123,107,232,.16)";
+      ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2.5; ctx.stroke();
+      // marque de l'angle droit
+      ctx.strokeStyle = C.soft; ctx.lineWidth = 1.5;
+      ctx.strokeRect(X1-13, Y1-13, 13, 13);
+      // arc de l'angle etudie
+      ctx.strokeStyle = C.violet; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(x0, y0, 26, -ang, 0); ctx.stroke();
+      ctx.fillStyle = C.violet; ctx.font = "700 12px ui-monospace,monospace"; ctx.textAlign = "left";
+      ctx.fillText("33°", x0 + 30, y0 - 8);
+      ctx.fillStyle = C.soft; ctx.font = "700 11px ui-monospace,monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("adjacent " + Math.round(base/10), (x0+X1)/2, y0 + 15);
+      ctx.textAlign = "left";
+      ctx.fillText("opposé " + Math.round(haut/10), X1 + 7, (Y1+Y2)/2);
+      oo.textContent = "opposé ÷ adjacent = " + fmt(Math.tan(ang), 2) + " toujours";
+    }
+    sl.addEventListener("input", d); host._redraw = d; d();
+  },
+
+  cercle(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">angle <b class="oa">40°</b> &nbsp;·&nbsp; cos = <b class="oc">0,77</b> &nbsp;·&nbsp; sin = <b class="os">0,64</b></div>
+      <input type="range" min="0" max="360" value="40" aria-label="Faire tourner le point"></div></div>`;
+    const cv = host.querySelector("canvas"), sl = host.querySelector("input");
+    const oa = host.querySelector(".oa"), oc = host.querySelector(".oc"), os = host.querySelector(".os");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.86);
+      const R = Math.min(w, h)/2 - 26;
+      const cx = w/2, cy = h/2;
+      ctx.fillStyle = "#fff"; ctx.fillRect(0,0,w,h);
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx-R-16, cy); ctx.lineTo(cx+R+16, cy);
+      ctx.moveTo(cx, cy-R-16); ctx.lineTo(cx, cy+R+16); ctx.stroke();
+      ctx.strokeStyle = C.gridS; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
+      const deg = +sl.value, a = deg*Math.PI/180;
+      const px = cx + R*Math.cos(a), py = cy - R*Math.sin(a);
+      ctx.fillStyle = "rgba(255,226,122,.5)";
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,32,0,-a,true); ctx.closePath(); ctx.fill();
+      // projections
+      ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([4,3]);
+      ctx.beginPath();
+      ctx.moveTo(px,py); ctx.lineTo(px,cy);
+      ctx.moveTo(px,py); ctx.lineTo(cx,py); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = C.violet; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke();
+      ctx.strokeStyle = "#C98A00"; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke();
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
+      ctx.fillStyle = C.violet; ctx.beginPath(); ctx.arc(px,py,6,0,7); ctx.fill();
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+      ctx.font = "700 11px ui-monospace,monospace"; ctx.textAlign = "center";
+      ctx.fillStyle = C.violet; ctx.fillText("cos", (cx+px)/2, cy + (py<cy?16:-8));
+      ctx.fillStyle = "#8a6d00"; ctx.fillText("sin", px + (px<cx?-18:18), (cy+py)/2);
+      oa.textContent = deg + "°";
+      oc.textContent = fmt(Math.cos(a), 2);
+      os.textContent = fmt(Math.sin(a), 2);
+    }
+    sl.addEventListener("input", d); host._redraw = d; d();
+  },
+
+  deroule(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">la hauteur du point, reportée à droite, dessine <b>la vague</b></div>
+      <input type="range" min="0" max="628" value="90" aria-label="Faire tourner et dérouler"></div></div>`;
+    const cv = host.querySelector("canvas"), sl = host.querySelector("input");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.5);
+      ctx.fillStyle = "#fff"; ctx.fillRect(0,0,w,h);
+      const R = Math.min(h/2 - 14, w*0.15);
+      const cx = R + 16, cy = h/2;
+      const x0 = cx + R + 14, span = w - x0 - 8;
+      const a = +sl.value/100;
+      ctx.strokeStyle = C.gridS; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x0, cy); ctx.lineTo(w-4, cy); ctx.stroke();
+      const px = cx + R*Math.cos(a), py = cy - R*Math.sin(a);
+      // la vague deja tracee
+      ctx.strokeStyle = C.violet; ctx.lineWidth = 2.5; ctx.beginPath();
+      for(let t = 0; t <= a; t += 0.02){
+        const X = x0 + t/(2*Math.PI)*span, Y = cy - R*Math.sin(t);
+        if(t === 0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
+      }
+      ctx.stroke();
+      const wx = x0 + a/(2*Math.PI)*span, wy = cy - R*Math.sin(a);
+      ctx.strokeStyle = C.soft; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(wx,wy); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
+      ctx.fillStyle = C.violet;
+      ctx.beginPath(); ctx.arc(px,py,5.5,0,7); ctx.fill();
+      ctx.beginPath(); ctx.arc(wx,wy,5.5,0,7); ctx.fill();
+    }
+    sl.addEventListener("input", d); host._redraw = d; d();
+  },
+
+  expo(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">en x = <b class="ox">1,0</b> &nbsp;·&nbsp; hauteur de eˣ <b class="oh">2,72</b> &nbsp;·&nbsp; sa pente <b class="op">2,72</b></div>
+      <input type="range" min="-100" max="200" value="100" aria-label="Déplacer le point"></div></div>`;
+    const cv = host.querySelector("canvas"), sl = host.querySelector("input");
+    const ox = host.querySelector(".ox"), oh = host.querySelector(".oh"), op = host.querySelector(".op");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.64);
+      const v = makeView(w, h, -1.4, 2.4, -1, 8);
+      drawGrid(ctx, w, h, v, 1, 1);
+      const a = +sl.value/100, y = Math.exp(a);
+      ctx.strokeStyle = C.violet2; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(v.X(v.xmin), v.Y(y + y*(v.xmin - a)));
+      ctx.lineTo(v.X(v.xmax), v.Y(y + y*(v.xmax - a)));
+      ctx.stroke();
+      drawFn(ctx, v, w, x => Math.pow(2,x), C.gridS, 2);
+      drawFn(ctx, v, w, x => Math.exp(x), C.ink, 3);
+      drawPoint(ctx, v, a, y, C.violet, 6.5);
+      ctx.fillStyle = C.soft; ctx.font = "700 11px ui-monospace,monospace"; ctx.textAlign = "left";
+      ctx.fillText("2ˣ", v.X(1.75), v.Y(Math.pow(2,1.75)) + 14);
+      ctx.fillStyle = C.ink;
+      ctx.fillText("eˣ", v.X(1.45), v.Y(Math.exp(1.45)) - 8);
+      ox.textContent = fmt(a);
+      oh.textContent = fmt(y, 2);
+      op.textContent = fmt(y, 2);
+    }
+    sl.addEventListener("input", d); host._redraw = d; d();
+  },
+
+  log(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">x = <b class="ox">10</b> &nbsp;·&nbsp; log₁₀(x) = <b class="oy">1,00</b></div>
+      <input type="range" min="1" max="600" value="200" aria-label="Changer x"></div></div>`;
+    const cv = host.querySelector("canvas"), sl = host.querySelector("input");
+    const ox = host.querySelector(".ox"), oy = host.querySelector(".oy");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.6);
+      const v = makeView(w, h, -8, 110, -1.2, 2.6);
+      ctx.fillStyle = "#fff"; ctx.fillRect(0,0,w,h);
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let y = -1; y <= 2; y++){ ctx.moveTo(0, v.Y(y)); ctx.lineTo(w, v.Y(y)); }
+      ctx.stroke();
+      ctx.strokeStyle = C.soft; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(0, v.Y(0)); ctx.lineTo(w, v.Y(0));
+      ctx.moveTo(v.X(0), 0); ctx.lineTo(v.X(0), h); ctx.stroke();
+      drawFn(ctx, v, w, x => x > 0 ? Math.log10(x) : NaN, C.ink, 3);
+      const xv = Math.pow(10, (+sl.value / 600) * 2.3 - 0.3);
+      const yv = Math.log10(xv);
+      ctx.strokeStyle = C.violet2; ctx.lineWidth = 1.2; ctx.setLineDash([4,3]);
+      ctx.beginPath();
+      ctx.moveTo(v.X(xv), v.Y(0)); ctx.lineTo(v.X(xv), v.Y(yv));
+      ctx.lineTo(v.X(0), v.Y(yv)); ctx.stroke(); ctx.setLineDash([]);
+      drawPoint(ctx, v, xv, yv, C.violet, 6);
+      ctx.fillStyle = C.soft; ctx.font = "700 11px ui-monospace,monospace"; ctx.textAlign = "left";
+      [1,10,100].forEach(t => { ctx.fillText(String(t), v.X(t) - 6, v.Y(0) + 15); });
+      ox.textContent = xv < 10 ? fmt(xv,1) : String(Math.round(xv));
+      oy.textContent = fmt(yv, 2);
+    }
+    sl.addEventListener("input", d); host._redraw = d; d();
+  },
+
+  sinus(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">en x = <b class="ox">0,0</b> &nbsp;·&nbsp; pente du sinus <b class="op">1,00</b> &nbsp;·&nbsp; cos(x) = <b class="oc">1,00</b></div>
+      <input type="range" min="0" max="628" value="0" aria-label="Déplacer le point sur la vague"></div></div>`;
+    const cv = host.querySelector("canvas"), sl = host.querySelector("input");
+    const ox = host.querySelector(".ox"), op = host.querySelector(".op"), oc = host.querySelector(".oc");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.72);
+      const v = makeView(w, h, -0.3, 6.6, -3.6, 1.4);
+      drawGrid(ctx, w, h, v, 1, 1);
+      const a = +sl.value / 100, s = Math.cos(a);
+      // repère du bas, décalé de -2
+      ctx.strokeStyle = C.gridS; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(0, v.Y(-2)); ctx.lineTo(w, v.Y(-2)); ctx.stroke();
+      // tangente au sinus
+      ctx.strokeStyle = C.violet2; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(v.X(a-1.6), v.Y(Math.sin(a) - 1.6*s));
+      ctx.lineTo(v.X(a+1.6), v.Y(Math.sin(a) + 1.6*s));
+      ctx.stroke();
+      drawFn(ctx, v, w, x => Math.sin(x), C.ink, 3);
+      drawFn(ctx, v, w, x => Math.cos(x) - 2, C.violet, 2.5);
+      drawPoint(ctx, v, a, Math.sin(a), C.violet, 6.5);
+      drawPoint(ctx, v, a, s - 2, C.yellow, 6.5);
+      // trait de report
+      ctx.strokeStyle = C.soft; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(v.X(a), v.Y(Math.sin(a))); ctx.lineTo(v.X(a), v.Y(s-2)); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = C.soft; ctx.textAlign = "left"; ctx.font = "700 11px ui-monospace,monospace";
+      ctx.fillText("sin x", 4, v.Y(1.15));
+      ctx.fillText("la pente, reportée ici  =  cos x", 4, v.Y(-0.95));
+      ox.textContent = fmt(a);
+      op.textContent = fmt(s, 2);
+      oc.textContent = fmt(s, 2);
+    }
+    sl.addEventListener("input", d); host._redraw = d; d();
+  },
+
+  secant(host){
+    host.innerHTML = `<div class="demo"><canvas></canvas>
+      <div class="demo-row"><div class="demo-lab">second point en x = <b class="ox">3,0</b> &nbsp;·&nbsp; pente entre les deux points <b class="op">4,00</b></div>
+      <input type="range" min="1" max="200" value="200" aria-label="Rapprocher le second point"></div></div>`;
+    const cv = host.querySelector("canvas"), sl = host.querySelector("input");
+    const ox = host.querySelector(".ox"), op = host.querySelector(".op");
+    function d(){
+      const { ctx, w, h } = setupCanvas(cv, 0.62);
+      const v = makeView(w, h, -0.4, 3.6, -0.8, 10);
+      drawGrid(ctx, w, h, v, 1, 1);
+      const f = x => x*x;
+      const hh = (+sl.value / 100) ** 2 * 2;      // écart, resserré vers 0
+      const a = 1, b = a + Math.max(hh, 0.002);
+      const p = (f(b) - f(a)) / (b - a);
+      ctx.strokeStyle = C.violet2; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(v.X(v.xmin), v.Y(f(a) + p*(v.xmin - a)));
+      ctx.lineTo(v.X(v.xmax), v.Y(f(a) + p*(v.xmax - a)));
+      ctx.stroke();
+      drawFn(ctx, v, w, f, C.ink, 3);
+      drawPoint(ctx, v, a, f(a), C.violet, 6.5);
+      drawPoint(ctx, v, b, f(b), C.yellow, 6.5);
+      ox.textContent = fmt(b, 3);
+      op.textContent = fmt(p, 3);
+    }
+    sl.addEventListener("input", d); host._redraw = d; d();
+  }
+};
+
+/* ==================================================================
+   6. AFFICHAGE
+   ================================================================== */
+const home = document.getElementById("home");
+const view = document.getElementById("view");
+
+function updateBar(){
+  const n = state.done.length;
+  document.getElementById("barfill").style.width = (n / L.length * 100) + "%";
+  document.getElementById("barnum").textContent = n + "/" + L.length;
+}
+
+function renderSpine(){
+  const s = document.getElementById("spine");
+  s.innerHTML = "";
+  const next = firstUndone();
+  L.forEach((l, i) => {
+    if(CHAPS[i+1]){
+      const c = document.createElement("p");
+      c.className = "chap"; c.textContent = CHAPS[i+1];
+      s.appendChild(c);
+    }
+    const b = document.createElement("button");
+    b.className = "step" + (state.done.includes(i) ? " done" : "") + (i === next ? " current" : "");
+    b.innerHTML = `<span class="dot">${state.done.includes(i) ? "✓" : String(i+1).padStart(2,"0")}</span>
+                   <span class="step-t">${l.t}</span>`;
+    b.addEventListener("click", () => openLesson(i));
+    s.appendChild(b);
+  });
+  updateBar();
+}
+
+function firstUndone(){
+  for(let i = 0; i < L.length; i++) if(!state.done.includes(i)) return i;
+  return L.length - 1;
+}
+
+function openLesson(i){
+  const l = L[i];
+  home.classList.add("hidden");
+  view.classList.remove("hidden");
+  view.innerHTML = `
+    <div class="lesson-head">
+      <div class="crumb">ÉTAPE ${String(i+1).padStart(2,"0")} / ${L.length}</div>
+      <h2>${l.t}</h2>
+    </div>
+    <div class="lesson">${l.html}</div>
+    <h3>À toi</h3>
+    <div id="exs"></div>
+    <div class="nav">
+      ${i > 0 ? '<button class="btn ghost small" id="prev">← Étape précédente</button>' : ''}
+      <button class="btn ghost small" id="tohome">Le parcours</button>
+      <button class="btn small" id="next">${i < L.length-1 ? "Étape suivante →" : "Terminer le parcours ✓"}</button>
+    </div>`;
+
+  // tout tableau non deja enveloppe devient scrollable horizontalement
+  view.querySelectorAll("table.t").forEach(tb => {
+    if(tb.parentElement && tb.parentElement.classList.contains("scrollx")) return;
+    const box = document.createElement("div");
+    box.className = "scrollx auto";
+    tb.parentNode.insertBefore(box, tb);
+    box.appendChild(tb);
+  });
+
+  view.querySelectorAll(".widget").forEach(hst => {
+    const fn = WIDGETS[hst.dataset.w];
+    if(fn) fn(hst);
+  });
+
+  renderEx(l.ex, view.querySelector("#exs"));
+
+  const prev = view.querySelector("#prev");
+  if(prev) prev.addEventListener("click", () => openLesson(i-1));
+  view.querySelector("#tohome").addEventListener("click", goHome);
+  view.querySelector("#next").addEventListener("click", () => {
+    markDone(i);
+    if(i < L.length-1) openLesson(i+1); else goHome();
+  });
+  window.scrollTo(0,0);
+}
+
+function markDone(i){
+  if(!state.done.includes(i)){ state.done.push(i); save(); updateBar(); }
+}
+
+function goHome(){
+  view.classList.add("hidden");
+  view.innerHTML = "";
+  home.classList.remove("hidden");
+  renderSpine();
+  heroDraw();
+  window.scrollTo(0,0);
+}
+
+function renderEx(list, host){
+  host.innerHTML = "";
+  list.forEach(e => {
+    const d = document.createElement("div");
+    d.className = "ex";
+    const verdict = `<div class="verdict"><span class="tag"></span><span class="why">${e.why}</span></div>`;
+    if(e.type === "qcm"){
+      d.innerHTML = `<p class="ex-q">${e.q}</p><div class="choices"></div>${verdict}`;
+      const box = d.querySelector(".choices");
+      e.c.forEach((txt, k) => {
+        const b = document.createElement("button");
+        b.className = "choice"; b.innerHTML = txt;
+        b.addEventListener("click", () => {
+          box.querySelectorAll(".choice").forEach((x, j) => {
+            x.disabled = true;
+            if(j === e.a) x.classList.add("ok");
+            else if(j === k) x.classList.add("no");
+          });
+          showVerdict(d, k === e.a);
+        });
+        box.appendChild(b);
+      });
+    } else {
+      d.innerHTML = `<p class="ex-q">${e.q}</p>
+        <div class="numrow">
+          <input type="text" inputmode="text" enterkeyhint="done" autocomplete="off"
+                 autocorrect="off" autocapitalize="off" spellcheck="false"
+                 placeholder="ta réponse" aria-label="Ta réponse">
+          <button class="btn small check">Vérifier</button>
+        </div>${verdict}`;
+      const inp = d.querySelector("input"), btn = d.querySelector(".check");
+      const test = () => {
+        const val = parseFloat(inp.value.replace(",", ".").replace(/\s/g,""));
+        if(!isFinite(val)){ inp.focus(); return; }
+        const tol = Number.isInteger(e.a) ? 1e-6 : 0.005;
+        inp.blur();                        // referme le clavier pour laisser voir la reponse
+        showVerdict(d, Math.abs(val - e.a) <= tol, e.a);
+      };
+      btn.addEventListener("click", test);
+      inp.addEventListener("keydown", ev => { if(ev.key === "Enter"){ ev.preventDefault(); test(); } });
+      // le clavier iPhone masque le bas de l'ecran : on remonte la question
+      inp.addEventListener("focus", () => {
+        setTimeout(() => d.scrollIntoView({ block:"center", behavior:"smooth" }), 320);
+      });
+    }
+    host.appendChild(d);
+  });
+}
+
+function showVerdict(card, good, answer){
+  const v = card.querySelector(".verdict");
+  v.classList.add("show");
+  v.classList.toggle("good", good);
+  v.classList.toggle("bad", !good);
+  v.querySelector(".tag").textContent = good
+    ? "C'est juste."
+    : (answer !== undefined
+        ? "Non — la réponse était " + (Number.isInteger(answer) ? String(answer) : String(Math.round(answer*1000)/1000)).replace(".", ",") + "."
+        : "Non.");
+}
+
+/* ==================================================================
+   7. DÉMARRAGE
+   ================================================================== */
+document.getElementById("heroS").addEventListener("input", heroDraw);
+document.getElementById("startBtn").addEventListener("click", () => openLesson(firstUndone()));
+document.getElementById("resetBtn").addEventListener("click", () => {
+  state = { done: [], last: 0 }; save(); renderSpine();
+});
+
+let rt, lastW = window.innerWidth;
+function redrawAll(){
+  heroDraw();
+  document.querySelectorAll(".widget").forEach(w => { if(w._redraw) w._redraw(); });
+}
+window.addEventListener("resize", () => {
+  // sur iPhone, la barre d'URL qui se retracte declenche resize sans changer la largeur
+  if(window.innerWidth === lastW) return;
+  lastW = window.innerWidth;
+  clearTimeout(rt);
+  rt = setTimeout(redrawAll, 150);
+});
+window.addEventListener("orientationchange", () => {
+  clearTimeout(rt);
+  rt = setTimeout(() => { lastW = window.innerWidth; redrawAll(); }, 350);
+});
+
+(async function(){
+  await load();
+  renderSpine();
+  heroDraw();
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(heroDraw);
+  const start = document.getElementById("startBtn");
+  if(state.done.length > 0) start.textContent = "Reprendre à l'étape " + (firstUndone()+1);
+})();
+</script>
+</body>
+</html>
